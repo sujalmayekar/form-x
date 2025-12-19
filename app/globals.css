@@ -1,26 +1,114 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Dark SaaS palette */
+  --background: #050816;
+  --foreground: #e5e7eb;
+
+  --card: #111827;
+  --card-foreground: #e5e7eb;
+
+  --popover: #0f172a;
+  --popover-foreground: #e5e7eb;
+
+  --primary: #2563eb;
+  --primary-foreground: #f8fafc;
+
+  --secondary: #1f2937;
+  --secondary-foreground: #e5e7eb;
+
+  --muted: #0b1220;
+  --muted-foreground: #94a3b8;
+
+  --accent: #1d4ed8;
+  --accent-foreground: #e5e7eb;
+
+  --destructive: #ef4444;
+  --destructive-foreground: #f8fafc;
+
+  --border: #1f2937;
+  --input: #111827;
+  --ring: #3b82f6;
+
+  --radius: 1.125rem;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 6px);
+
+  --font-sans: var(--font-outfit), -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  --font-display: var(--font-playfair), "SF Pro Display", serif;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Keep same palette for dark pref to avoid flicker */
+    --background: #050816;
+    --foreground: #e5e7eb;
+    --card: #111827;
+    --card-foreground: #e5e7eb;
+    --popover: #0f172a;
+    --popover-foreground: #e5e7eb;
+    --primary: #2563eb;
+    --primary-foreground: #f8fafc;
+    --secondary: #1f2937;
+    --secondary-foreground: #e5e7eb;
+    --muted: #0b1220;
+    --muted-foreground: #94a3b8;
+    --accent: #1d4ed8;
+    --accent-foreground: #e5e7eb;
+    --destructive: #ef4444;
+    --destructive-foreground: #f8fafc;
+    --border: #1f2937;
+    --input: #111827;
+    --ring: #3b82f6;
   }
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer utilities {
+  .glass-card {
+    @apply bg-white/5 dark:bg-white/5 backdrop-blur-xl border border-white/10 shadow-lg shadow-black/20;
+  }
+
+  .input-clean {
+    @apply bg-transparent border-0 border-b border-slate-800 focus:border-primary focus:ring-0 px-0 rounded-none transition-colors text-foreground;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
