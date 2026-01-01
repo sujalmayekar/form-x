@@ -24,7 +24,31 @@ const FormSchema = new mongoose.Schema({
     default: 'survey' 
   },
   questions: [QuestionSchema], // A list of questions (defined above)
-  createdAt: { type: Date, default: Date.now }
+  createdBy: { type: String, required: true }, // Clerk user ID
+  theme: {
+    primaryColor: { type: String, default: '#4f46e5' }, // Indigo-600
+    backgroundColor: { type: String, default: '#f8fafc' }, // Slate-50
+    cardBackground: { type: String, default: '#ffffff' }, // White
+    textColor: { type: String, default: '#1e293b' }, // Slate-800
+    borderColor: { type: String, default: '#e2e8f0' }, // Slate-200
+    fontFamily: { 
+      type: String, 
+      enum: ['inter', 'roboto', 'open-sans', 'lato', 'montserrat', 'playfair'],
+      default: 'inter'
+    },
+    borderRadius: { 
+      type: String, 
+      enum: ['sm', 'md', 'lg', 'xl', 'full'],
+      default: 'lg' 
+    },
+    headerStyle: { 
+      type: String, 
+      enum: ['default', 'centered', 'minimal', 'banner'],
+      default: 'default'
+    }
+  },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
 });
 
 // 3. Export the model so other files can use it

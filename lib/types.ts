@@ -10,10 +10,22 @@ export interface Question {
   maxRating?: number;
 }
 
+export interface FormTheme {
+  primaryColor?: string;
+  backgroundColor?: string;
+  cardBackground?: string;
+  textColor?: string;
+  borderColor?: string;
+  fontFamily?: 'inter' | 'roboto' | 'open-sans' | 'lato' | 'montserrat' | 'playfair';
+  borderRadius?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
+  headerStyle?: 'default' | 'centered' | 'minimal' | 'banner';
+}
+
 export interface Form {
   id?: string;
   title: string;
   description: string;
   type: 'quiz' | 'survey';
   questions: Question[];
+  theme?: FormTheme;
 }

@@ -2,17 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { Star } from 'lucide-react'; // Ensure lucide-react is installed
+import { Star } from 'lucide-react';
 
 export default function TakeQuizPage() {
-  const { id } = useParams(); // Get ID from URL
+  const { id } = useParams();
   const [form, setForm] = useState<any>(null);
   const [answers, setAnswers] = useState<any>({});
   const [submitted, setSubmitted] = useState(false);
   const [score, setScore] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // 1. Fetch the form when the page loads
   useEffect(() => {
     if (!id) return;
     
@@ -33,14 +32,11 @@ export default function TakeQuizPage() {
       });
   }, [id]);
 
-  // 2. Handle Answer Selection
   const handleChange = (qId: number, value: any) => {
     setAnswers({ ...answers, [qId]: value });
   };
 
-  // 3. Submit Answers
   const handleSubmit = async () => {
-    // Basic validation
     if(form?.questions.some((q: any) => q.required && !answers[q.id] && answers[q.id] !== 0)) {
         alert("Please answer all required questions.");
         return;
@@ -66,21 +62,55 @@ export default function TakeQuizPage() {
     }
   };
 
+  // Helper functions for theme
+  const getBorderRadius = (radius?: string) => {
+    const map: Record<string, string> = {
+      'sm': 'rounded-md',
+      'md': 'rounded-lg',
+      'lg': 'rounded-xl',
+      'xl': 'rounded-2xl',
+      'full': 'rounded-full'
+    };
+    return map[radius || 'lg'] || 'rounded-xl';
+  };
+
+  const getFontClass = (font?: string) => {
+    const fontMap: Record<string, string> = {
+      'inter': 'font-sans',
+      'roboto': 'font-sans',
+      'open-sans': 'font-sans',
+      'lato': 'font-sans',
+      'montserrat': 'font-sans',
+      'playfair': 'font-serif'
+    };
+    return fontMap[font || 'inter'] || 'font-sans';
+  };
+
   if (loading) return <div className="min-h-screen flex items-center justify-center text-slate-500">Loading form...</div>;
   if (!form) return <div className="min-h-screen flex items-center justify-center text-red-500">Form not found.</div>;
+
+  const theme = form.theme || {};
+  const borderRadiusClass = getBorderRadius(theme.borderRadius);
+  const fontClass = getFontClass(theme.fontFamily);
+  const primaryColor = theme.primaryColor || '#4f46e5';
+  const backgroundColor = theme.backgroundColor || '#f8fafc';
+  const cardBackground = theme.cardBackground || '#ffffff';
+  const textColor = theme.textColor || '#1e293b';
+  const borderColor = theme.borderColor || '#e2e8f0';
+  const headerStyle = theme.headerStyle || 'default';
 
   // View: Success / Score Screen
   if (submitted) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-emerald-50 p-6 text-center">
-        <div className="bg-white p-8 rounded-2xl shadow-lg max-w-md w-full">
-            <h1 className="text-3xl font-bold text-emerald-800 mb-4">Submission Received!</h1>
-            <p className="text-slate-600 mb-6">Thank you for completing the form.</p>
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center" style={{ backgroundColor }}>
+        <div className={`${cardBackground} p-8 ${borderRadiusClass} shadow-lg max-w-md w-full`} style={{ backgroundColor: cardBackground }}>
+            <h1 className="text-3xl font-bold mb-4" style={{ color: primaryColor }}>Submission Received!</h1>
+            <p className="mb-6" style={{ color: textColor }}>Thank you for completing the form.</p>
             
             {score !== null && (
-            <div className="bg-emerald-100 p-4 rounded-xl">
-                <p className="text-sm text-emerald-600 font-bold uppercase tracking-wider">Your Score</p>
-                <p className="text-4xl font-extrabold text-emerald-700 mt-2">{score}</p>
+            <div className={`p-4 ${borderRadiusClass}`} style={{ backgroundColor: `${primaryColor}20` }}>
+                <p className="text-sm font-bold uppercase tracking-wider" style={{ color: primaryColor }}>Your Score</p>
+                <p className="text-4xl font-extrabold mt-2" style={{ color: primaryColor }}>{score}</p>
             </div>
             )}
         </div>
@@ -90,18 +120,42 @@ export default function TakeQuizPage() {
 
   // View: Taking the Form
   return (
-    <div className="min-h-screen bg-slate-50 py-10 px-4">
+    <div className={`min-h-screen py-10 px-4 ${fontClass}`} style={{ backgroundColor }}>
       <div className="max-w-2xl mx-auto space-y-6">
           {/* Header Card */}
-          <div className="bg-white rounded-xl shadow-sm border-t-8 border-t-indigo-600 p-8">
-            <h1 className="text-3xl font-bold text-slate-800 mb-2">{form.title}</h1>
-            <p className="text-slate-600">{form.description}</p>
+          <div 
+            className={`${cardBackground} ${borderRadiusClass} shadow-sm p-8`}
+            style={{
+              backgroundColor: cardBackground,
+              borderTop: headerStyle === 'banner' ? `8px solid ${primaryColor}` : 'none',
+            }}
+          >
+            <h1 
+              className={`text-3xl font-bold mb-2 ${headerStyle === 'centered' ? 'text-center' : ''}`}
+              style={{ color: textColor }}
+            >
+              {form.title}
+            </h1>
+            {form.description && (
+              <p style={{ color: textColor, opacity: 0.7 }}>{form.description}</p>
+            )}
           </div>
 
           {/* Questions */}
           {form.questions.map((q: any) => (
-            <div key={q.id} className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
-              <p className="font-medium text-lg text-slate-800 mb-4">
+            <div 
+              key={q.id} 
+              className={`${cardBackground} ${borderRadiusClass} shadow-sm p-6`}
+              style={{
+                backgroundColor: cardBackground,
+                borderColor: borderColor,
+                borderWidth: '1px'
+              }}
+            >
+              <p 
+                className="font-medium text-lg mb-4"
+                style={{ color: textColor }}
+              >
                   {q.text} {q.required && <span className="text-red-500">*</span>}
               </p>
               
@@ -109,15 +163,24 @@ export default function TakeQuizPage() {
               {q.type === 'multiple_choice' && (
                   <div className="space-y-3">
                     {q.options.map((opt: string, idx: number) => (
-                        <label key={idx} className="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-slate-50">
+                        <label 
+                          key={idx} 
+                          className="flex items-center space-x-3 cursor-pointer p-2 rounded transition"
+                          style={{
+                            backgroundColor: answers[q.id] === idx ? `${primaryColor}20` : 'transparent'
+                          }}
+                        >
                         <input
                             type="radio"
                             name={`q-${q.id}`}
-                            className="w-5 h-5 text-indigo-600 focus:ring-indigo-500 border-slate-300"
+                            className="w-5 h-5 border-gray-300"
+                            style={{ 
+                              accentColor: primaryColor
+                            }}
                             onChange={() => handleChange(q.id, idx)}
                             checked={answers[q.id] === idx}
                         />
-                        <span className="text-slate-700">{opt}</span>
+                        <span style={{ color: textColor }}>{opt}</span>
                         </label>
                     ))}
                   </div>
@@ -127,7 +190,13 @@ export default function TakeQuizPage() {
               {q.type === 'text' && (
                 <input
                   type="text"
-                  className="w-full border border-slate-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className={`w-full ${borderRadiusClass} p-3 border focus:ring-2`}
+                  style={{
+                    borderColor: borderColor,
+                    color: textColor,
+                    backgroundColor: cardBackground,
+                    '--tw-ring-color': primaryColor
+                  } as React.CSSProperties}
                   placeholder="Your answer..."
                   onChange={(e) => handleChange(q.id, e.target.value)}
                   value={answers[q.id] || ''}
@@ -141,7 +210,10 @@ export default function TakeQuizPage() {
                         <button 
                             key={star}
                             onClick={() => handleChange(q.id, star)}
-                            className={`p-1 transition-colors ${answers[q.id] >= star ? 'text-yellow-400' : 'text-slate-300'}`}
+                            className="p-1 transition-colors"
+                            style={{
+                              color: answers[q.id] >= star ? primaryColor : borderColor
+                            }}
                         >
                             <Star fill="currentColor" size={32} />
                         </button>
@@ -155,7 +227,10 @@ export default function TakeQuizPage() {
           <div className="flex justify-end">
             <button
                 onClick={handleSubmit}
-                className="bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all transform hover:-translate-y-1"
+                className={`px-8 py-3 ${borderRadiusClass} font-bold text-white shadow-lg transition-all transform hover:-translate-y-1`}
+                style={{
+                  backgroundColor: primaryColor,
+                }}
             >
                 Submit Form
             </button>

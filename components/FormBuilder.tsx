@@ -10,6 +10,8 @@ import {
   ChevronRight,
   Settings,
   GripVertical,
+  Palette,
+  Layout,
 } from "lucide-react";
 import { Form, QuestionType } from "@/lib/types";
 
@@ -44,7 +46,12 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
 
       if (data.success) {
         const link = `${window.location.origin}/take/${data.id}`;
-        alert(`Form Saved Successfully!\n\nShare this link:\n${link}`);
+        const shouldGoToDashboard = window.confirm(
+          `Form Saved Successfully!\n\nShare this link:\n${link}\n\nWould you like to view it in the dashboard?`
+        );
+        if (shouldGoToDashboard) {
+          window.location.href = '/dashboard';
+        }
       } else {
         alert('Error saving form: ' + data.error);
       }
@@ -245,11 +252,11 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
                         <select
                           value={q.type}
                           onChange={(e) => updateQuestion(q.id, "type", e.target.value)}
-                          className="appearance-none pl-3 pr-8 py-2 bg-white/5 rounded-lg text-sm font-medium border border-white/10 focus:ring-1 focus:ring-primary cursor-pointer hover:bg-white/10 transition-colors"
+                          className="appearance-none pl-3 pr-8 py-2 bg-white/5 rounded-lg text-sm font-medium border border-white/10 focus:ring-1 focus:ring-primary cursor-pointer hover:bg-white/10 transition-colors text-foreground"
                         >
-                          <option value="multiple_choice">Multiple Choice</option>
-                          <option value="text">Text Answer</option>
-                          <option value="rating">Rating</option>
+                          <option value="multiple_choice" className="bg-slate-900 text-foreground">Multiple Choice</option>
+                          <option value="text" className="bg-slate-900 text-foreground">Text Answer</option>
+                          <option value="rating" className="bg-slate-900 text-foreground">Rating</option>
                         </select>
                         <ChevronRight
                           size={14}
@@ -353,6 +360,17 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
         </div>
 
         <div className="space-y-3">
+          {/* Theme Settings Panel */}
+          <div className="bg-card border border-white/5 rounded-2xl p-5 shadow-lg shadow-black/20 sticky top-24 space-y-5 max-h-[calc(100vh-8rem)] overflow-y-auto">
+            <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+              <Palette className="w-4 h-4" />
+              Theme Settings
+            </div>
+            
+            <ThemeSettingsPanel form={form} setForm={setForm} />
+          </div>
+
+          {/* Field Settings Panel */}
           <div className="bg-card border border-white/5 rounded-2xl p-5 shadow-lg shadow-black/20 sticky top-24 space-y-4">
             <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
               <Settings className="w-4 h-4" />
@@ -395,5 +413,142 @@ const PaletteButton = ({
     <span>{label}</span>
   </button>
 );
+
+const ThemeSettingsPanel = ({ form, setForm }: { form: Form; setForm: (form: Form | ((prev: Form) => Form)) => void }) => {
+  const updateTheme = (key: string, value: any) => {
+    setForm({
+      ...form,
+      theme: {
+        ...(form.theme || {}),
+        [key]: value
+      }
+    });
+  };
+
+  const colorPresets = [
+    '#4f46e5', // Indigo
+    '#7c3aed', // Purple
+    '#dc2626', // Red
+    '#ea580c', // Orange
+    '#059669', // Emerald
+    '#0284c7', // Sky
+    '#be185d', // Pink
+    '#0891b2', // Cyan
+  ];
+
+  const fonts = [
+    { value: 'inter', label: 'Inter' },
+    { value: 'roboto', label: 'Roboto' },
+    { value: 'open-sans', label: 'Open Sans' },
+    { value: 'lato', label: 'Lato' },
+    { value: 'montserrat', label: 'Montserrat' },
+    { value: 'playfair', label: 'Playfair Display' },
+  ];
+
+  return (
+    <div className="space-y-5">
+      {/* Primary Color */}
+      <div>
+        <label className="text-xs font-medium mb-2 block text-foreground">Primary Color</label>
+        <div className="flex gap-2 flex-wrap mb-2">
+          {colorPresets.map(color => (
+            <button
+              key={color}
+              onClick={() => updateTheme('primaryColor', color)}
+              className={`w-6 h-6 rounded-lg border-2 transition ${
+                (form.theme?.primaryColor || '#4f46e5') === color 
+                  ? 'border-white scale-110' 
+                  : 'border-white/20 hover:border-white/40'
+              }`}
+              style={{ backgroundColor: color }}
+              title={color}
+            />
+          ))}
+        </div>
+        <input
+          type="color"
+          value={form.theme?.primaryColor || '#4f46e5'}
+          onChange={(e) => updateTheme('primaryColor', e.target.value)}
+          className="w-full h-8 rounded-lg cursor-pointer border border-white/10"
+        />
+      </div>
+
+      {/* Background Color */}
+      <div>
+        <label className="text-xs font-medium mb-2 block text-foreground">Background Color</label>
+        <input
+          type="color"
+          value={form.theme?.backgroundColor || '#f8fafc'}
+          onChange={(e) => updateTheme('backgroundColor', e.target.value)}
+          className="w-full h-8 rounded-lg cursor-pointer border border-white/10"
+        />
+      </div>
+
+      {/* Card Background */}
+      <div>
+        <label className="text-xs font-medium mb-2 block text-foreground">Card Background</label>
+        <input
+          type="color"
+          value={form.theme?.cardBackground || '#ffffff'}
+          onChange={(e) => updateTheme('cardBackground', e.target.value)}
+          className="w-full h-8 rounded-lg cursor-pointer border border-white/10"
+        />
+      </div>
+
+      {/* Font Family */}
+      <div>
+        <label className="text-xs font-medium mb-2 block text-foreground flex items-center gap-1">
+          <Type className="w-3 h-3" />
+          Font Family
+        </label>
+        <select
+          value={form.theme?.fontFamily || 'inter'}
+          onChange={(e) => updateTheme('fontFamily', e.target.value)}
+          className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+        >
+          {fonts.map(font => (
+            <option key={font.value} value={font.value} className="bg-slate-900">
+              {font.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Border Radius */}
+      <div>
+        <label className="text-xs font-medium mb-2 block text-foreground">Border Radius</label>
+        <select
+          value={form.theme?.borderRadius || 'lg'}
+          onChange={(e) => updateTheme('borderRadius', e.target.value)}
+          className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+        >
+          <option value="sm" className="bg-slate-900">Small</option>
+          <option value="md" className="bg-slate-900">Medium</option>
+          <option value="lg" className="bg-slate-900">Large</option>
+          <option value="xl" className="bg-slate-900">Extra Large</option>
+          <option value="full" className="bg-slate-900">Full (Pill)</option>
+        </select>
+      </div>
+
+      {/* Header Style */}
+      <div>
+        <label className="text-xs font-medium mb-2 block text-foreground flex items-center gap-1">
+          <Layout className="w-3 h-3" />
+          Header Style
+        </label>
+        <select
+          value={form.theme?.headerStyle || 'default'}
+          onChange={(e) => updateTheme('headerStyle', e.target.value)}
+          className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+        >
+          <option value="default" className="bg-slate-900">Default</option>
+          <option value="centered" className="bg-slate-900">Centered</option>
+          <option value="minimal" className="bg-slate-900">Minimal</option>
+          <option value="banner" className="bg-slate-900">Banner</option>
+        </select>
+      </div>
+    </div>
+  );
+};
 
 export default FormBuilder;

@@ -6,11 +6,11 @@ const ResponseSchema = new mongoose.Schema({
     ref: 'Form', 
     required: true 
   },
-  // We use a Map to store answers flexibly (QuestionID -> Answer)
-  answers: { 
-    type: Map, 
-    of: mongoose.Schema.Types.Mixed 
-  }, 
+  // Store answers as a flexible object (QuestionID -> Answer)
+  answers: {
+    type: mongoose.Schema.Types.Mixed,
+    default: {}
+  },
   score: { type: Number, default: 0 }, // Only used if it's a Quiz
   submittedAt: { type: Date, default: Date.now }
 });

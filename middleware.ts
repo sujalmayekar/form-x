@@ -6,8 +6,14 @@ const isProtectedRoute = createRouteMatcher([
   '/builder(.*)'
 ]);
 
+const isProtectedApiRoute = createRouteMatcher([
+  '/api/forms$', // POST/GET /api/forms - requires auth
+  '/api/forms/:id/responses' // GET /api/forms/[id]/responses - requires auth
+]);
+
 export default clerkMiddleware(async (auth, req) => {
   if (isProtectedRoute(req)) await auth.protect();
+  if (isProtectedApiRoute(req)) await auth.protect();
 });
 
 export const config = {
