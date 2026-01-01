@@ -1,14 +1,22 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import Navbar from '@/components/Navbar';
-import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, BarChart3, Download, FileText, CheckCircle2, XCircle, Star } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import Navbar from "@/components/Navbar";
+import { useParams, useRouter } from "next/navigation";
+import {
+  ArrowLeft,
+  BarChart3,
+  Download,
+  FileText,
+  CheckCircle2,
+  XCircle,
+  Star,
+} from "lucide-react";
 
 interface Question {
   id: number;
   text: string;
-  type: 'multiple_choice' | 'text' | 'rating';
+  type: "multiple_choice" | "text" | "rating";
   options?: string[];
   correctAnswer?: number;
 }
@@ -17,7 +25,7 @@ interface Form {
   _id: string;
   title: string;
   description?: string;
-  type: 'quiz' | 'survey';
+  type: "quiz" | "survey";
   questions: Question[];
 }
 
@@ -32,11 +40,13 @@ export default function FormAnalyticsPage() {
   const params = useParams();
   const router = useRouter();
   const formId = params.id as string;
-  
+
   const [form, setForm] = useState<Form | null>(null);
   const [responses, setResponses] = useState<Response[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'overview' | 'responses'>('overview');
+  const [activeTab, setActiveTab] = useState<"overview" | "responses">(
+    "overview"
+  );
 
   useEffect(() => {
     if (formId) {
@@ -53,7 +63,7 @@ export default function FormAnalyticsPage() {
         setResponses(data.responses || []);
       }
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
@@ -61,28 +71,28 @@ export default function FormAnalyticsPage() {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   const calculateQuestionStats = (questionId: number) => {
-    const question = form?.questions.find(q => q.id === questionId);
+    const question = form?.questions.find((q) => q.id === questionId);
     if (!question) return null;
 
-    if (question.type === 'multiple_choice' && question.options) {
+    if (question.type === "multiple_choice" && question.options) {
       const stats: Record<number, number> = {};
       question.options.forEach((_, idx) => {
         stats[idx] = 0;
       });
 
-      responses.forEach(response => {
+      responses.forEach((response) => {
         const answer = response.answers[questionId];
-        if (typeof answer === 'number' && stats[answer] !== undefined) {
+        if (typeof answer === "number" && stats[answer] !== undefined) {
           stats[answer]++;
         }
       });
@@ -90,17 +100,18 @@ export default function FormAnalyticsPage() {
       return stats;
     }
 
-    if (question.type === 'rating') {
+    if (question.type === "rating") {
       const ratings: number[] = [];
-      responses.forEach(response => {
+      responses.forEach((response) => {
         const answer = response.answers[questionId];
-        if (typeof answer === 'number') {
+        if (typeof answer === "number") {
           ratings.push(answer);
         }
       });
-      const avg = ratings.length > 0 
-        ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(2)
-        : 0;
+      const avg =
+        ratings.length > 0
+          ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(2)
+          : "0.00";
       return { average: parseFloat(avg), total: ratings.length };
     }
 
@@ -108,8 +119,8 @@ export default function FormAnalyticsPage() {
   };
 
   const getAverageScore = () => {
-    if (form?.type !== 'quiz' || responses.length === 0) return null;
-    const scores = responses.map(r => r.score || 0);
+    if (form?.type !== "quiz" || responses.length === 0) return null;
+    const scores = responses.map((r) => r.score || 0);
     const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
     return avg.toFixed(1);
   };
@@ -117,32 +128,41 @@ export default function FormAnalyticsPage() {
   const exportToCSV = () => {
     if (!form || responses.length === 0) return;
 
-    const headers = ['Response ID', 'Submitted At', ...form.questions.map(q => q.text), ...(form.type === 'quiz' ? ['Score'] : [])];
+    const headers = [
+      "Response ID",
+      "Submitted At",
+      ...form.questions.map((q) => q.text),
+      ...(form.type === "quiz" ? ["Score"] : []),
+    ];
     const rows = responses.map((response, idx) => {
       const row = [
         `Response ${idx + 1}`,
         formatDate(response.submittedAt),
-        ...form.questions.map(q => {
+        ...form.questions.map((q) => {
           const answer = response.answers[q.id];
-          if (q.type === 'multiple_choice' && typeof answer === 'number' && q.options) {
-            return q.options[answer] || '';
+          if (
+            q.type === "multiple_choice" &&
+            typeof answer === "number" &&
+            q.options
+          ) {
+            return q.options[answer] || "";
           }
-          if (q.type === 'rating') {
-            return typeof answer === 'number' ? answer.toString() : '';
+          if (q.type === "rating") {
+            return typeof answer === "number" ? answer.toString() : "";
           }
-          return typeof answer === 'string' ? answer : '';
+          return typeof answer === "string" ? answer : "";
         }),
-        ...(form.type === 'quiz' ? [response.score?.toString() || '0'] : [])
+        ...(form.type === "quiz" ? [response.score?.toString() || "0"] : []),
       ];
-      return row.map(cell => `"${cell}"`).join(',');
+      return row.map((cell) => `"${cell}"`).join(",");
     });
 
-    const csv = [headers.map(h => `"${h}"`).join(','), ...rows].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
+    const csv = [headers.map((h) => `"${h}"`).join(","), ...rows].join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = `${form.title.replace(/\s+/g, '_')}_responses.csv`;
+    a.download = `${form.title.replace(/\s+/g, "_")}_responses.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -168,7 +188,7 @@ export default function FormAnalyticsPage() {
           <div className="text-center py-20">
             <p className="text-muted-foreground">Form not found</p>
             <button
-              onClick={() => router.push('/dashboard')}
+              onClick={() => router.push("/dashboard")}
               className="mt-4 px-4 py-2 rounded-lg bg-primary text-primary-foreground"
             >
               Back to Dashboard
@@ -188,7 +208,7 @@ export default function FormAnalyticsPage() {
         {/* Header */}
         <div className="flex items-center gap-4">
           <button
-            onClick={() => router.push('/dashboard')}
+            onClick={() => router.push("/dashboard")}
             className="p-2 rounded-lg hover:bg-white/5 transition"
           >
             <ArrowLeft size={20} />
@@ -216,18 +236,24 @@ export default function FormAnalyticsPage() {
           <div className="bg-card border border-white/5 rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-2">
               <FileText size={20} className="text-primary" />
-              <span className="text-sm text-muted-foreground">Total Responses</span>
+              <span className="text-sm text-muted-foreground">
+                Total Responses
+              </span>
             </div>
             <p className="text-3xl font-semibold">{responses.length}</p>
           </div>
-          {form.type === 'quiz' && (
+          {form.type === "quiz" && (
             <div className="bg-card border border-white/5 rounded-2xl p-6">
               <div className="flex items-center gap-3 mb-2">
                 <BarChart3 size={20} className="text-primary" />
-                <span className="text-sm text-muted-foreground">Average Score</span>
+                <span className="text-sm text-muted-foreground">
+                  Average Score
+                </span>
               </div>
               <p className="text-3xl font-semibold">
-                {avgScore !== null ? `${avgScore}/${form.questions.length}` : 'N/A'}
+                {avgScore !== null
+                  ? `${avgScore}/${form.questions.length}`
+                  : "N/A"}
               </p>
             </div>
           )}
@@ -243,21 +269,21 @@ export default function FormAnalyticsPage() {
         {/* Tabs */}
         <div className="flex gap-2 border-b border-white/5">
           <button
-            onClick={() => setActiveTab('overview')}
+            onClick={() => setActiveTab("overview")}
             className={`px-4 py-2 text-sm font-medium transition ${
-              activeTab === 'overview'
-                ? 'text-primary border-b-2 border-primary'
-                : 'text-muted-foreground hover:text-foreground'
+              activeTab === "overview"
+                ? "text-primary border-b-2 border-primary"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             Question Analytics
           </button>
           <button
-            onClick={() => setActiveTab('responses')}
+            onClick={() => setActiveTab("responses")}
             className={`px-4 py-2 text-sm font-medium transition ${
-              activeTab === 'responses'
-                ? 'text-primary border-b-2 border-primary'
-                : 'text-muted-foreground hover:text-foreground'
+              activeTab === "responses"
+                ? "text-primary border-b-2 border-primary"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             All Responses ({responses.length})
@@ -265,86 +291,109 @@ export default function FormAnalyticsPage() {
         </div>
 
         {/* Content */}
-        {activeTab === 'overview' ? (
+        {activeTab === "overview" ? (
           <div className="space-y-6">
             {form.questions.map((question, qIdx) => {
               const stats = calculateQuestionStats(question.id);
               return (
-                <div key={question.id} className="bg-card border border-white/5 rounded-2xl p-6">
+                <div
+                  key={question.id}
+                  className="bg-card border border-white/5 rounded-2xl p-6"
+                >
                   <div className="flex items-start gap-3 mb-4">
                     <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/20 text-primary font-semibold text-sm">
                       {qIdx + 1}
                     </span>
                     <div className="flex-1">
-                      <h3 className="text-lg font-semibold mb-1">{question.text}</h3>
+                      <h3 className="text-lg font-semibold mb-1">
+                        {question.text}
+                      </h3>
                       <span className="text-xs px-2 py-0.5 rounded-full bg-white/5 text-muted-foreground">
                         {question.type}
                       </span>
                     </div>
                   </div>
 
-                  {question.type === 'multiple_choice' && question.options && stats && (
-                    <div className="space-y-3 mt-4">
-                      {question.options.map((option, optIdx) => {
-                        const count = (stats as Record<number, number>)[optIdx] || 0;
-                        const percentage = responses.length > 0 
-                          ? ((count / responses.length) * 100).toFixed(1) 
-                          : 0;
-                        const isCorrect = question.correctAnswer === optIdx;
-                        
-                        return (
-                          <div key={optIdx} className="space-y-1.5">
-                            <div className="flex items-center justify-between text-sm">
-                              <div className="flex items-center gap-2">
-                                <span>{option}</span>
-                                {form.type === 'quiz' && isCorrect && (
-                                  <CheckCircle2 size={14} className="text-green-500" />
-                                )}
-                              </div>
-                              <span className="text-muted-foreground">
-                                {count} ({percentage}%)
-                              </span>
-                            </div>
-                            <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                              <div
-                                className={`h-full rounded-full transition-all ${
-                                  isCorrect && form.type === 'quiz'
-                                    ? 'bg-green-500/60'
-                                    : 'bg-primary/60'
-                                }`}
-                                style={{ width: `${percentage}%` }}
-                              />
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
+                  {question.type === "multiple_choice" &&
+                    question.options &&
+                    stats && (
+                      <div className="space-y-3 mt-4">
+                        {question.options.map((option, optIdx) => {
+                          const count =
+                            (stats as Record<number, number>)[optIdx] || 0;
+                          const percentage =
+                            responses.length > 0
+                              ? ((count / responses.length) * 100).toFixed(1)
+                              : 0;
+                          const isCorrect = question.correctAnswer === optIdx;
 
-                  {question.type === 'rating' && stats && 'average' in stats && (
-                    <div className="mt-4">
-                      <div className="flex items-center gap-4">
-                        <div>
-                          <p className="text-2xl font-semibold">{stats.average}</p>
-                          <p className="text-sm text-muted-foreground">Average rating</p>
-                        </div>
-                        <div className="flex gap-1">
-                          {[1, 2, 3, 4, 5].map((rating) => (
-                            <Star
-                              key={rating}
-                              size={24}
-                              className={rating <= Math.round(stats.average) ? 'text-yellow-500 fill-yellow-500' : 'text-white/10'}
-                            />
-                          ))}
+                          return (
+                            <div key={optIdx} className="space-y-1.5">
+                              <div className="flex items-center justify-between text-sm">
+                                <div className="flex items-center gap-2">
+                                  <span>{option}</span>
+                                  {form.type === "quiz" && isCorrect && (
+                                    <CheckCircle2
+                                      size={14}
+                                      className="text-green-500"
+                                    />
+                                  )}
+                                </div>
+                                <span className="text-muted-foreground">
+                                  {count} ({percentage}%)
+                                </span>
+                              </div>
+                              <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                                <div
+                                  className={`h-full rounded-full transition-all ${
+                                    isCorrect && form.type === "quiz"
+                                      ? "bg-green-500/60"
+                                      : "bg-primary/60"
+                                  }`}
+                                  style={{ width: `${percentage}%` }}
+                                />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                  {question.type === "rating" &&
+                    stats &&
+                    "average" in stats && (
+                      <div className="mt-4">
+                        <div className="flex items-center gap-4">
+                          <div>
+                            <p className="text-2xl font-semibold">
+                              {stats.average}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              Average rating
+                            </p>
+                          </div>
+                          <div className="flex gap-1">
+                            {[1, 2, 3, 4, 5].map((rating) => (
+                              <Star
+                                key={rating}
+                                size={24}
+                                className={
+                                  rating <= Math.round(stats.average)
+                                    ? "text-yellow-500 fill-yellow-500"
+                                    : "text-white/10"
+                                }
+                              />
+                            ))}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {question.type === 'text' && (
+                  {question.type === "text" && (
                     <div className="mt-4 p-4 bg-white/5 rounded-lg">
                       <p className="text-sm text-muted-foreground">
-                        {responses.filter(r => r.answers[question.id]).length} text responses collected
+                        {responses.filter((r) => r.answers[question.id]).length}{" "}
+                        text responses collected
                       </p>
                     </div>
                   )}
@@ -356,18 +405,26 @@ export default function FormAnalyticsPage() {
           <div className="space-y-4">
             {responses.length === 0 ? (
               <div className="bg-card border border-white/5 rounded-2xl p-12 text-center">
-                <FileText size={48} className="mx-auto mb-4 text-muted-foreground/50" />
+                <FileText
+                  size={48}
+                  className="mx-auto mb-4 text-muted-foreground/50"
+                />
                 <p className="text-muted-foreground">No responses yet</p>
               </div>
             ) : (
               responses.map((response, idx) => (
-                <div key={response._id} className="bg-card border border-white/5 rounded-2xl p-6">
+                <div
+                  key={response._id}
+                  className="bg-card border border-white/5 rounded-2xl p-6"
+                >
                   <div className="flex items-center justify-between mb-4 pb-4 border-b border-white/5">
                     <div>
                       <p className="font-semibold">Response #{idx + 1}</p>
-                      <p className="text-sm text-muted-foreground">{formatDate(response.submittedAt)}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {formatDate(response.submittedAt)}
+                      </p>
                     </div>
-                    {form.type === 'quiz' && (
+                    {form.type === "quiz" && (
                       <div className="text-right">
                         <p className="text-2xl font-semibold text-primary">
                           {response.score || 0}/{form.questions.length}
@@ -385,33 +442,50 @@ export default function FormAnalyticsPage() {
                             {question.text}
                           </p>
                           <div className="text-foreground">
-                            {question.type === 'multiple_choice' && question.options && typeof answer === 'number' && (
-                              <div className="flex items-center gap-2">
-                                <span>{question.options[answer]}</span>
-                                {form.type === 'quiz' && question.correctAnswer !== undefined && (
-                                  question.correctAnswer === answer ? (
-                                    <CheckCircle2 size={16} className="text-green-500" />
-                                  ) : (
-                                    <XCircle size={16} className="text-red-500" />
-                                  )
-                                )}
-                              </div>
+                            {question.type === "multiple_choice" &&
+                              question.options &&
+                              typeof answer === "number" && (
+                                <div className="flex items-center gap-2">
+                                  <span>{question.options[answer]}</span>
+                                  {form.type === "quiz" &&
+                                    question.correctAnswer !== undefined &&
+                                    (question.correctAnswer === answer ? (
+                                      <CheckCircle2
+                                        size={16}
+                                        className="text-green-500"
+                                      />
+                                    ) : (
+                                      <XCircle
+                                        size={16}
+                                        className="text-red-500"
+                                      />
+                                    ))}
+                                </div>
+                              )}
+                            {question.type === "text" && (
+                              <p className="text-sm bg-white/5 p-3 rounded-lg">
+                                {answer || "No answer"}
+                              </p>
                             )}
-                            {question.type === 'text' && (
-                              <p className="text-sm bg-white/5 p-3 rounded-lg">{answer || 'No answer'}</p>
-                            )}
-                            {question.type === 'rating' && typeof answer === 'number' && (
-                              <div className="flex gap-1">
-                                {[1, 2, 3, 4, 5].map((rating) => (
-                                  <Star
-                                    key={rating}
-                                    size={20}
-                                    className={rating <= answer ? 'text-yellow-500 fill-yellow-500' : 'text-white/10'}
-                                  />
-                                ))}
-                                <span className="ml-2 text-sm text-muted-foreground">({answer}/5)</span>
-                              </div>
-                            )}
+                            {question.type === "rating" &&
+                              typeof answer === "number" && (
+                                <div className="flex gap-1">
+                                  {[1, 2, 3, 4, 5].map((rating) => (
+                                    <Star
+                                      key={rating}
+                                      size={20}
+                                      className={
+                                        rating <= answer
+                                          ? "text-yellow-500 fill-yellow-500"
+                                          : "text-white/10"
+                                      }
+                                    />
+                                  ))}
+                                  <span className="ml-2 text-sm text-muted-foreground">
+                                    ({answer}/5)
+                                  </span>
+                                </div>
+                              )}
                           </div>
                         </div>
                       );
@@ -426,4 +500,3 @@ export default function FormAnalyticsPage() {
     </div>
   );
 }
-
