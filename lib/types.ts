@@ -1,4 +1,4 @@
-export type QuestionType = 'multiple_choice' | 'text' | 'rating';
+export type QuestionType = 'multiple_choice' | 'text' | 'long_text' | 'date' | 'rating';
 
 export interface Question {
   id: number;
@@ -28,4 +28,7 @@ export interface Form {
   type: 'quiz' | 'survey';
   questions: Question[];
   theme?: FormTheme;
+  isOpen?: boolean;
+  thankYouTitle?: string;
+  thankYouDescription?: string;
 }

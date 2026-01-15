@@ -6,7 +6,7 @@ const QuestionSchema = new mongoose.Schema({
   text: { type: String, required: true }, // The question itself
   type: { 
     type: String, 
-    enum: ['multiple_choice', 'text', 'rating'], 
+    enum: ['multiple_choice', 'text', 'long_text', 'date', 'rating'], 
     required: true 
   },
   options: [{ type: String }], // Array of choices (e.g., ["Yes", "No"])
@@ -47,6 +47,9 @@ const FormSchema = new mongoose.Schema({
       default: 'default'
     }
   },
+  thankYouTitle: { type: String, default: 'Submission received!' },
+  thankYouDescription: { type: String, default: 'Thank you for completing this form.' },
+  isOpen: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });

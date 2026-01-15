@@ -71,22 +71,31 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-slate-950 text-foreground relative overflow-hidden">
       <Navbar />
-      <div className="max-w-7xl mx-auto pt-28 px-6 pb-16 space-y-10">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-semibold tracking-tight">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-24 left-10 w-80 h-80 rounded-full blur-3xl opacity-30 bg-primary" />
+        <div className="absolute top-10 right-0 w-[420px] h-[420px] rounded-full blur-[110px] opacity-25 bg-cyan-300" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.05),transparent_40%),radial-gradient(circle_at_80%_0%,rgba(255,255,255,0.04),transparent_40%)]" />
+      </div>
+
+      <div className="relative max-w-7xl mx-auto pt-28 px-6 pb-16 space-y-10">
+        <div className="bg-white/5 border border-white/10 rounded-3xl p-6 md:p-8 shadow-2xl shadow-black/30 backdrop-blur-xl flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/10 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-300">
+              Dashboard
+            </div>
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white">
               Your Forms
             </h1>
-            <p className="text-muted-foreground mt-2">
-              Create, organize, and analyse forms in one place.
+            <p className="text-slate-300">
+              Create, organize, and analyze forms with a sleek, animated workspace.
             </p>
           </div>
           <div className="flex gap-3">
             <Link
               href="/"
-              className="px-4 py-2 rounded-lg border border-white/10 text-sm font-medium text-foreground hover:bg-white/5 transition"
+              className="px-4 py-2 rounded-xl border border-white/15 text-sm font-semibold text-white hover:bg-white/5 transition"
             >
               + Create New Form
             </Link>
@@ -94,18 +103,20 @@ export default function DashboardPage() {
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="text-muted-foreground">Loading your forms...</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, idx) => (
+              <div key={idx} className="h-40 rounded-2xl bg-white/5 border border-white/10 animate-pulse-soft" />
+            ))}
           </div>
         ) : forms.length === 0 ? (
-          <div className="border border-dashed border-white/10 rounded-2xl p-12 flex flex-col items-center justify-center gap-4 bg-card/50">
-            <FileText size={48} className="text-muted-foreground/50" />
-            <p className="text-muted-foreground text-center">
+          <div className="border border-dashed border-white/15 rounded-3xl p-12 flex flex-col items-center justify-center gap-4 bg-white/5 backdrop-blur-xl">
+            <FileText size={48} className="text-muted-foreground/60" />
+            <p className="text-slate-300 text-center">
               No forms yet. Start creating to see them here.
             </p>
             <Link
               href="/"
-              className="px-5 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold shadow-lg shadow-primary/30 hover:opacity-90 transition"
+              className="px-5 py-2.5 rounded-xl bg-white text-slate-900 text-sm font-semibold shadow-lg shadow-primary/30 hover:-translate-y-0.5 transition-transform"
             >
               Create your first form
             </Link>
@@ -115,27 +126,28 @@ export default function DashboardPage() {
             {forms.map((form) => (
               <div
                 key={form._id}
-                className="bg-card border border-white/5 rounded-2xl p-6 shadow-lg shadow-black/20 hover:-translate-y-1 hover:border-primary/40 transition-all cursor-pointer group"
+                className="relative overflow-hidden bg-white/5 border border-white/10 rounded-2xl p-6 shadow-2xl shadow-black/25 hover:-translate-y-1 hover:border-primary/40 transition-all cursor-pointer group backdrop-blur-xl"
                 onClick={() => router.push(`/dashboard/forms/${form._id}`)}
               >
-                <div className="flex items-start justify-between gap-3 mb-4">
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(circle_at_top_right,rgba(124,58,237,0.18),transparent_40%),radial-gradient(circle_at_bottom_left,rgba(34,211,238,0.18),transparent_40%)]" />
+                <div className="relative flex items-start justify-between gap-3 mb-4">
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-lg font-semibold">{form.title}</h3>
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary font-medium">
+                      <h3 className="text-lg font-semibold text-white">{form.title}</h3>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/90 font-semibold border border-white/10">
                         {form.type}
                       </span>
                     </div>
                     {form.description && (
-                      <p className="text-sm text-muted-foreground line-clamp-2">
+                      <p className="text-sm text-slate-300 line-clamp-2">
                         {form.description}
                       </p>
                     )}
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-4 border-t border-white/5">
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <div className="relative flex items-center justify-between pt-4 border-t border-white/10">
+                  <div className="flex items-center gap-4 text-sm text-slate-300">
                     <div className="flex items-center gap-1.5">
                       <BarChart3 size={14} />
                       <span>{responseCounts[form._id] || 0} responses</span>
@@ -150,7 +162,7 @@ export default function DashboardPage() {
                       e.stopPropagation();
                       router.push(`/dashboard/forms/${form._id}`);
                     }}
-                    className="px-3 py-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition text-sm font-medium"
+                    className="px-3 py-1.5 rounded-lg bg-white/10 text-white hover:bg-white/20 transition text-sm font-semibold"
                   >
                     <Eye size={14} className="inline mr-1" />
                     View

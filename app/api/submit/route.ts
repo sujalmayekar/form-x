@@ -8,11 +8,20 @@ export async function POST(req: Request) {
     await dbConnect();
     const { formId, answers } = await req.json();
 
+    const form = await Form.findById(formId);
+
+    if (!form) {
+      return NextResponse.json({ success: false, error: 'Form not found' }, { status: 404 });
+    }
+
+    if (form.isOpen === false) {
+      return NextResponse.json({ success: false, error: 'Form is not accepting responses' }, { status: 403 });
+    }
+
     // Optional: Calculate score if it's a quiz
     let score = 0;
-    const form = await Form.findById(formId);
     
-    if (form && form.type === 'quiz') {
+    if (form.type === 'quiz') {
       // Logic to compare user answers with correct answers
       // We cast q to 'any' to avoid strict type checks on the dynamic question object
       form.questions.forEach((q: any) => {

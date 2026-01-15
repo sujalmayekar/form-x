@@ -11,6 +11,8 @@ import {
   CheckCircle2,
   XCircle,
   Star,
+  Share2,
+  Copy,
 } from "lucide-react";
 
 interface Question {
@@ -47,6 +49,8 @@ export default function FormAnalyticsPage() {
   const [activeTab, setActiveTab] = useState<"overview" | "responses">(
     "overview"
   );
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [copiedField, setCopiedField] = useState<"link" | "embed" | null>(null);
 
   useEffect(() => {
     if (formId) {
@@ -125,20 +129,21 @@ export default function FormAnalyticsPage() {
     return avg.toFixed(1);
   };
 
-  const exportToCSV = () => {
-    if (!form || responses.length === 0) return;
+  const exportToCSV = async () => {
+    if (!form) return;
 
-    const headers = [
-      "Response ID",
-      "Submitted At",
-      ...form.questions.map((q) => q.text),
-      ...(form.type === "quiz" ? ["Score"] : []),
-    ];
-    const rows = responses.map((response, idx) => {
-      const row = [
-        `Response ${idx + 1}`,
-        formatDate(response.submittedAt),
-        ...form.questions.map((q) => {
+    try {
+      // Fetch fresh responses to ensure latest data
+      const res = await fetch(`/api/forms/${form._id}/responses`);
+      const data = await res.json();
+      if (!data.success || !data.responses || data.responses.length === 0) return;
+
+      const freshResponses: Response[] = data.responses;
+
+      const headers = form.questions.map((q) => q.text || `Question ${q.id}`);
+
+      const rows = freshResponses.map((response) => {
+        return form.questions.map((q) => {
           const answer = response.answers[q.id];
           if (
             q.type === "multiple_choice" &&
@@ -147,24 +152,32 @@ export default function FormAnalyticsPage() {
           ) {
             return q.options[answer] || "";
           }
-          if (q.type === "rating") {
-            return typeof answer === "number" ? answer.toString() : "";
+          if (q.type === "rating" || q.type === "date") {
+            return answer !== undefined && answer !== null ? String(answer) : "";
           }
+          // text / long_text / other strings
           return typeof answer === "string" ? answer : "";
-        }),
-        ...(form.type === "quiz" ? [response.score?.toString() || "0"] : []),
-      ];
-      return row.map((cell) => `"${cell}"`).join(",");
-    });
+        });
+      });
 
-    const csv = [headers.map((h) => `"${h}"`).join(","), ...rows].join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${form.title.replace(/\s+/g, "_")}_responses.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+      const escapeCell = (cell: string) =>
+        `"${(cell ?? "").replace(/"/g, '""')}"`;
+
+      const csv = [
+        headers.map(escapeCell).join(","),
+        ...rows.map((row) => row.map(escapeCell).join(",")),
+      ].join("\n");
+
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${form.title.replace(/\s+/g, "_")}_responses.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error("Error exporting CSV", e);
+    }
   };
 
   if (loading) {
@@ -200,90 +213,110 @@ export default function FormAnalyticsPage() {
   }
 
   const avgScore = getAverageScore();
+  const publicLink =
+    typeof window !== "undefined"
+      ? `${window.location.origin}/take/${formId}`
+      : "";
+  const embedCode = `<iframe src="${publicLink}" width="100%" height="600" frameborder="0" style="border:0;"></iframe>`;
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-slate-950 text-foreground relative overflow-hidden">
       <Navbar />
-      <div className="max-w-7xl mx-auto pt-28 px-6 pb-16 space-y-8">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-24 left-6 w-80 h-80 rounded-full blur-3xl opacity-30 bg-primary" />
+        <div className="absolute top-0 right-0 w-[420px] h-[420px] rounded-full blur-[120px] opacity-25 bg-cyan-300" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.05),transparent_40%),radial-gradient(circle_at_80%_0%,rgba(255,255,255,0.05),transparent_40%)]" />
+      </div>
+
+      <div className="relative max-w-7xl mx-auto pt-28 px-6 pb-16 space-y-8">
         {/* Header */}
-        <div className="flex items-center gap-4">
+        <div className="bg-white/5 border border-white/10 rounded-3xl p-6 md:p-7 shadow-2xl shadow-black/30 backdrop-blur-xl flex flex-col md:flex-row md:items-center md:gap-6 gap-4">
           <button
             onClick={() => router.push("/dashboard")}
-            className="p-2 rounded-lg hover:bg-white/5 transition"
+            className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition"
           >
             <ArrowLeft size={20} />
           </button>
-          <div className="flex-1">
-            <h1 className="text-3xl md:text-4xl font-semibold tracking-tight">
+          <div className="flex-1 space-y-1">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/10 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-300">
+              Analytics
+            </div>
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white">
               {form.title}
             </h1>
             {form.description && (
-              <p className="text-muted-foreground mt-2">{form.description}</p>
+              <p className="text-slate-300 mt-1">{form.description}</p>
             )}
           </div>
-          <button
-            onClick={exportToCSV}
-            disabled={responses.length === 0}
-            className="px-4 py-2 rounded-lg border border-white/10 text-sm font-medium hover:bg-white/5 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-          >
-            <Download size={16} />
-            Export CSV
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              type="button"
+              onClick={() => setIsShareOpen(true)}
+              className="px-4 py-2 rounded-xl border border-white/10 text-sm font-semibold hover:bg-white/5 transition flex items-center gap-2 bg-white/5 text-white"
+            >
+              <Share2 size={16} />
+              Share
+            </button>
+            <button
+              onClick={exportToCSV}
+              disabled={responses.length === 0}
+              className="px-4 py-2 rounded-xl border border-white/10 text-sm font-semibold hover:bg-white/5 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 bg-white/5 text-white"
+            >
+              <Download size={16} />
+              Export CSV
+            </button>
+          </div>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-card border border-white/5 rounded-2xl p-6">
-            <div className="flex items-center gap-3 mb-2">
-              <FileText size={20} className="text-primary" />
-              <span className="text-sm text-muted-foreground">
-                Total Responses
-              </span>
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 shadow-xl shadow-black/20 backdrop-blur-xl">
+            <div className="flex items-center gap-3 mb-2 text-slate-300">
+              <FileText size={20} className="text-emerald-400" />
+              <span className="text-sm">Total Responses</span>
             </div>
-            <p className="text-3xl font-semibold">{responses.length}</p>
+            <p className="text-3xl font-semibold text-white">{responses.length}</p>
           </div>
           {form.type === "quiz" && (
-            <div className="bg-card border border-white/5 rounded-2xl p-6">
-              <div className="flex items-center gap-3 mb-2">
-                <BarChart3 size={20} className="text-primary" />
-                <span className="text-sm text-muted-foreground">
-                  Average Score
-                </span>
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 shadow-xl shadow-black/20 backdrop-blur-xl">
+              <div className="flex items-center gap-3 mb-2 text-slate-300">
+                <BarChart3 size={20} className="text-cyan-300" />
+                <span className="text-sm">Average Score</span>
               </div>
-              <p className="text-3xl font-semibold">
+              <p className="text-3xl font-semibold text-white">
                 {avgScore !== null
                   ? `${avgScore}/${form.questions.length}`
                   : "N/A"}
               </p>
             </div>
           )}
-          <div className="bg-card border border-white/5 rounded-2xl p-6">
-            <div className="flex items-center gap-3 mb-2">
-              <CheckCircle2 size={20} className="text-primary" />
-              <span className="text-sm text-muted-foreground">Questions</span>
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 shadow-xl shadow-black/20 backdrop-blur-xl">
+            <div className="flex items-center gap-3 mb-2 text-slate-300">
+              <CheckCircle2 size={20} className="text-amber-300" />
+              <span className="text-sm">Questions</span>
             </div>
-            <p className="text-3xl font-semibold">{form.questions.length}</p>
+            <p className="text-3xl font-semibold text-white">{form.questions.length}</p>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 border-b border-white/5">
+        <div className="flex gap-2 bg-white/5 border border-white/10 rounded-xl p-1 w-fit backdrop-blur">
           <button
             onClick={() => setActiveTab("overview")}
-            className={`px-4 py-2 text-sm font-medium transition ${
+            className={`px-4 py-2 text-sm font-semibold rounded-lg transition ${
               activeTab === "overview"
-                ? "text-primary border-b-2 border-primary"
-                : "text-muted-foreground hover:text-foreground"
+                ? "bg-white text-slate-900 shadow-md"
+                : "text-slate-200 hover:bg-white/5"
             }`}
           >
             Question Analytics
           </button>
           <button
             onClick={() => setActiveTab("responses")}
-            className={`px-4 py-2 text-sm font-medium transition ${
+            className={`px-4 py-2 text-sm font-semibold rounded-lg transition ${
               activeTab === "responses"
-                ? "text-primary border-b-2 border-primary"
-                : "text-muted-foreground hover:text-foreground"
+                ? "bg-white text-slate-900 shadow-md"
+                : "text-slate-200 hover:bg-white/5"
             }`}
           >
             All Responses ({responses.length})
@@ -497,6 +530,102 @@ export default function FormAnalyticsPage() {
           </div>
         )}
       </div>
+
+      {/* Share Modal */}
+      {isShareOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsShareOpen(false)} />
+          <div className="relative max-w-lg w-full bg-slate-900 border border-white/10 rounded-2xl shadow-2xl shadow-black/40 p-6 space-y-5">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-semibold text-white">Share form</h2>
+                <p className="text-xs text-slate-400 mt-1">Copy the link, embed on your site, or share via QR code.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsShareOpen(false)}
+                className="p-1.5 rounded-lg hover:bg-white/5 text-slate-300"
+              >
+                <XCircle size={18} />
+              </button>
+            </div>
+
+            {/* Public link */}
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-slate-300">Public link</label>
+              <div className="flex gap-2">
+                <input
+                  readOnly
+                  value={publicLink}
+                  className="flex-1 px-3 py-2 rounded-lg bg-slate-950 border border-white/10 text-xs text-slate-100 overflow-x-auto"
+                />
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(publicLink);
+                      setCopiedField("link");
+                      setTimeout(() => setCopiedField(null), 1500);
+                    } catch (e) {
+                      console.error("Copy failed", e);
+                    }
+                  }}
+                  className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-xs font-semibold text-white hover:bg-white/10 flex items-center gap-1"
+                >
+                  <Copy size={14} />
+                  {copiedField === "link" ? "Copied" : "Copy"}
+                </button>
+              </div>
+            </div>
+
+            {/* Embed code */}
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-slate-300">Embed code</label>
+              <div className="flex gap-2">
+                <textarea
+                  readOnly
+                  rows={3}
+                  value={embedCode}
+                  className="flex-1 px-3 py-2 rounded-lg bg-slate-950 border border-white/10 text-xs text-slate-100 font-mono"
+                />
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(embedCode);
+                      setCopiedField("embed");
+                      setTimeout(() => setCopiedField(null), 1500);
+                    } catch (e) {
+                      console.error("Copy failed", e);
+                    }
+                  }}
+                  className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-xs font-semibold text-white hover:bg-white/10 flex items-center gap-1 self-start"
+                >
+                  <Copy size={14} />
+                  {copiedField === "embed" ? "Copied" : "Copy"}
+                </button>
+              </div>
+            </div>
+
+            {/* QR code */}
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-slate-300">QR code</label>
+              <div className="flex items-center gap-4">
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(
+                    publicLink
+                  )}`}
+                  alt="Form QR code"
+                  className="w-32 h-32 rounded-md border border-white/10 bg-white"
+                />
+                <p className="text-xs text-slate-400">
+                  Scan this code to open the public form on mobile, or download the image for your docs and slides.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

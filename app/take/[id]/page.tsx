@@ -104,8 +104,12 @@ export default function TakeQuizPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center" style={{ backgroundColor }}>
         <div className={`${cardBackground} p-8 ${borderRadiusClass} shadow-lg max-w-md w-full`} style={{ backgroundColor: cardBackground }}>
-            <h1 className="text-3xl font-bold mb-4" style={{ color: primaryColor }}>Submission Received!</h1>
-            <p className="mb-6" style={{ color: textColor }}>Thank you for completing the form.</p>
+            <h1 className="text-3xl font-bold mb-4" style={{ color: primaryColor }}>
+              {form.thankYouTitle || 'Submission received!'}
+            </h1>
+            <p className="mb-6" style={{ color: textColor }}>
+              {form.thankYouDescription || 'Thank you for completing this form.'}
+            </p>
             
             {score !== null && (
             <div className={`p-4 ${borderRadiusClass}`} style={{ backgroundColor: `${primaryColor}20` }}>
@@ -113,6 +117,25 @@ export default function TakeQuizPage() {
                 <p className="text-4xl font-extrabold mt-2" style={{ color: primaryColor }}>{score}</p>
             </div>
             )}
+        </div>
+      </div>
+    );
+  }
+
+  // If form is closed, show message instead of inputs
+  if (form.isOpen === false) {
+    return (
+      <div className={`min-h-screen py-10 px-4 ${fontClass}`} style={{ backgroundColor }}>
+        <div
+          className={`${cardBackground} ${borderRadiusClass} shadow-lg max-w-xl mx-auto p-8 text-center`}
+          style={{ backgroundColor: cardBackground, borderColor, borderWidth: '1px' }}
+        >
+          <h1 className="text-3xl font-bold mb-3" style={{ color: primaryColor }}>
+            This form is currently not accepting responses.
+          </h1>
+          <p style={{ color: textColor, opacity: 0.8 }}>
+            The owner of this form has closed it for new submissions. Please check back later or contact them directly.
+          </p>
         </div>
       </div>
     );
@@ -198,6 +221,38 @@ export default function TakeQuizPage() {
                     '--tw-ring-color': primaryColor
                   } as React.CSSProperties}
                   placeholder="Your answer..."
+                  onChange={(e) => handleChange(q.id, e.target.value)}
+                  value={answers[q.id] || ''}
+                />
+              )}
+
+              {/* Long Text Render */}
+              {q.type === 'long_text' && (
+                <textarea
+                  className={`w-full ${borderRadiusClass} p-3 border focus:ring-2 resize-y min-h-[120px]`}
+                  style={{
+                    borderColor: borderColor,
+                    color: textColor,
+                    backgroundColor: cardBackground,
+                    '--tw-ring-color': primaryColor
+                  } as React.CSSProperties}
+                  placeholder="Your detailed answer..."
+                  onChange={(e) => handleChange(q.id, e.target.value)}
+                  value={answers[q.id] || ''}
+                />
+              )}
+
+              {/* Date Render */}
+              {q.type === 'date' && (
+                <input
+                  type="date"
+                  className={`w-full ${borderRadiusClass} p-3 border focus:ring-2`}
+                  style={{
+                    borderColor: borderColor,
+                    color: textColor,
+                    backgroundColor: cardBackground,
+                    '--tw-ring-color': primaryColor
+                  } as React.CSSProperties}
                   onChange={(e) => handleChange(q.id, e.target.value)}
                   value={answers[q.id] || ''}
                 />

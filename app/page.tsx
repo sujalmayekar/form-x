@@ -13,7 +13,10 @@ export default function Home() {
     title: '',
     description: '',
     type: 'quiz', // quiz or survey
-    questions: []
+    questions: [],
+    isOpen: true,
+    thankYouTitle: 'Submission received!',
+    thankYouDescription: 'Thank you for completing this form.'
   });
 
   const handleCreate = (type: 'quiz' | 'survey') => {
