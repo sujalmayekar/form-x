@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import { useParams, useRouter } from "next/navigation";
+import { Form, Question } from "@/lib/types";
 import {
   ArrowLeft,
   BarChart3,
@@ -15,20 +16,8 @@ import {
   Copy,
 } from "lucide-react";
 
-interface Question {
-  id: number;
-  text: string;
-  type: "multiple_choice" | "text" | "rating";
-  options?: string[];
-  correctAnswer?: number;
-}
-
-interface Form {
+interface ApiForm extends Form {
   _id: string;
-  title: string;
-  description?: string;
-  type: "quiz" | "survey";
-  questions: Question[];
 }
 
 interface Response {
@@ -43,7 +32,7 @@ export default function FormAnalyticsPage() {
   const router = useRouter();
   const formId = params.id as string;
 
-  const [form, setForm] = useState<Form | null>(null);
+  const [form, setForm] = useState<ApiForm | null>(null);
   const [responses, setResponses] = useState<Response[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"overview" | "responses">(
@@ -303,21 +292,19 @@ export default function FormAnalyticsPage() {
         <div className="flex gap-2 bg-white/5 border border-white/10 rounded-xl p-1 w-fit backdrop-blur">
           <button
             onClick={() => setActiveTab("overview")}
-            className={`px-4 py-2 text-sm font-semibold rounded-lg transition ${
-              activeTab === "overview"
+            className={`px-4 py-2 text-sm font-semibold rounded-lg transition ${activeTab === "overview"
                 ? "bg-white text-slate-900 shadow-md"
                 : "text-slate-200 hover:bg-white/5"
-            }`}
+              }`}
           >
             Question Analytics
           </button>
           <button
             onClick={() => setActiveTab("responses")}
-            className={`px-4 py-2 text-sm font-semibold rounded-lg transition ${
-              activeTab === "responses"
+            className={`px-4 py-2 text-sm font-semibold rounded-lg transition ${activeTab === "responses"
                 ? "bg-white text-slate-900 shadow-md"
                 : "text-slate-200 hover:bg-white/5"
-            }`}
+              }`}
           >
             All Responses ({responses.length})
           </button>
@@ -378,11 +365,10 @@ export default function FormAnalyticsPage() {
                               </div>
                               <div className="h-2 bg-white/5 rounded-full overflow-hidden">
                                 <div
-                                  className={`h-full rounded-full transition-all ${
-                                    isCorrect && form.type === "quiz"
+                                  className={`h-full rounded-full transition-all ${isCorrect && form.type === "quiz"
                                       ? "bg-green-500/60"
                                       : "bg-primary/60"
-                                  }`}
+                                    }`}
                                   style={{ width: `${percentage}%` }}
                                 />
                               </div>
