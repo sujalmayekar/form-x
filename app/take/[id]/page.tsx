@@ -2,19 +2,20 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { Star } from 'lucide-react';
+import { Star, Check } from 'lucide-react';
 
 export default function TakeQuizPage() {
   const { id } = useParams();
   const [form, setForm] = useState<any>(null);
   const [answers, setAnswers] = useState<any>({});
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [score, setScore] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!id) return;
-    
+
     setLoading(true);
     fetch(`/api/forms/${id}`)
       .then((res) => res.json())
@@ -32,33 +33,36 @@ export default function TakeQuizPage() {
       });
   }, [id]);
 
-  const handleChange = (qId: number, value: any) => {
+  const handleAnswerChange = (qId: number, value: any) => {
     setAnswers({ ...answers, [qId]: value });
   };
 
   const handleSubmit = async () => {
-    if(form?.questions.some((q: any) => q.required && !answers[q.id] && answers[q.id] !== 0)) {
-        alert("Please answer all required questions.");
-        return;
+    if (form?.questions.some((q: any) => q.required && !answers[q.id] && answers[q.id] !== 0)) {
+      alert("Please answer all required questions.");
+      return;
     }
 
+    setSubmitting(true);
     try {
-        const response = await fetch('/api/submit', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ formId: id, answers }),
-        });
-        
-        const result = await response.json();
-        if (result.success) {
-          setSubmitted(true);
-          if (result.score !== undefined) setScore(result.score);
-        } else {
-            alert("Submission failed.");
-        }
+      const response = await fetch('/api/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ formId: id, answers }),
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        setSubmitted(true);
+        if (result.score !== undefined) setScore(result.score);
+      } else {
+        alert("Submission failed.");
+      }
     } catch (e) {
-        console.error(e);
-        alert("Error submitting form.");
+      console.error(e);
+      alert("Error submitting form.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -102,21 +106,23 @@ export default function TakeQuizPage() {
   // View: Success / Score Screen
   if (submitted) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center" style={{ backgroundColor }}>
-        <div className={`${cardBackground} p-8 ${borderRadiusClass} shadow-lg max-w-md w-full`} style={{ backgroundColor: cardBackground }}>
-            <h1 className="text-3xl font-bold mb-4" style={{ color: primaryColor }}>
-              {form.thankYouTitle || 'Submission received!'}
-            </h1>
-            <p className="mb-6" style={{ color: textColor }}>
-              {form.thankYouDescription || 'Thank you for completing this form.'}
-            </p>
-            
-            {score !== null && (
-            <div className={`p-4 ${borderRadiusClass}`} style={{ backgroundColor: `${primaryColor}20` }}>
-                <p className="text-sm font-bold uppercase tracking-wider" style={{ color: primaryColor }}>Your Score</p>
-                <p className="text-4xl font-extrabold mt-2" style={{ color: primaryColor }}>{score}</p>
-            </div>
-            )}
+      <div className={`min-h-screen flex items-center justify-center p-4 ${fontClass}`} style={{ backgroundColor }}>
+        <div
+          className={`max-w-xl w-full p-12 ${borderRadiusClass} shadow-xl text-center space-y-6 border border-black/5 animate-scale-in hover-lift transition-all duration-300`}
+          style={{ backgroundColor: cardBackground }}
+        >
+          <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-scale-in transition-all duration-300 hover:scale-110 hover:rotate-12">
+            <Check size={32} className="transition-transform duration-300" />
+          </div>
+          <h2 className="text-3xl font-bold tracking-tight" style={{ color: textColor }}>
+            {form.thankYouTitle || "Submission Received"}
+          </h2>
+          <p className="text-lg leading-relaxed opacity-80" style={{ color: textColor }}>
+            {form.thankYouDescription || "Thank you for filling out this form."}
+          </p>
+          <div className="pt-8">
+            <div className="w-8 h-1 bg-black/10 mx-auto rounded-full" />
+          </div>
         </div>
       </div>
     );
@@ -141,155 +147,173 @@ export default function TakeQuizPage() {
     );
   }
 
-  // View: Taking the Form
   return (
-    <div className={`min-h-screen py-10 px-4 ${fontClass}`} style={{ backgroundColor }}>
-      <div className="max-w-2xl mx-auto space-y-6">
-          {/* Header Card */}
-          <div 
-            className={`${cardBackground} ${borderRadiusClass} shadow-sm p-8`}
-            style={{
-              backgroundColor: cardBackground,
-              borderTop: headerStyle === 'banner' ? `8px solid ${primaryColor}` : 'none',
-            }}
-          >
-            <h1 
-              className={`text-3xl font-bold mb-2 ${headerStyle === 'centered' ? 'text-center' : ''}`}
-              style={{ color: textColor }}
-            >
-              {form.title}
-            </h1>
-            {form.description && (
-              <p style={{ color: textColor, opacity: 0.7 }}>{form.description}</p>
-            )}
-          </div>
+    <div className={`min-h-screen py-12 px-4 md:px-6 transition-colors duration-500 ${fontClass}`} style={{ backgroundColor }}>
+      <div className="max-w-[640px] mx-auto space-y-6">
+        {/* Header Card */}
+        <div
+          className={`${cardBackground} ${borderRadiusClass} shadow-sm border border-black/5 p-8 md:p-10 relative overflow-hidden animate-fade-in hover-lift transition-all duration-300`}
+          style={{
+            backgroundColor: cardBackground,
+            borderTop: headerStyle === 'banner' ? `8px solid ${primaryColor}` : '1px solid rgba(0,0,0,0.05)',
+          }}
+        >
+          {headerStyle === 'minimal' && <div className="absolute top-0 left-0 w-1 h-full" style={{ backgroundColor: primaryColor }} />}
 
-          {/* Questions */}
-          {form.questions.map((q: any) => (
-            <div 
-              key={q.id} 
-              className={`${cardBackground} ${borderRadiusClass} shadow-sm p-6`}
-              style={{
+          <h1
+            className={`text-3xl md:text-4xl font-bold mb-3 tracking-tight leading-tight ${headerStyle === 'centered' ? 'text-center' : ''}`}
+            style={{ color: textColor }}
+          >
+            {form.title}
+          </h1>
+          {form.description && (
+            <p className={`text-lg leading-relaxed opacity-70 ${headerStyle === 'centered' ? 'text-center' : ''}`} style={{ color: textColor }}>
+              {form.description}
+            </p>
+          )}
+        </div>
+
+        {/* Questions */}
+        <div className="space-y-4">
+          {form.questions.map((q: any, index: number) => (
+            <div
+              key={q.id}
+              className={`${borderRadiusClass} p-8 md:p-10 shadow-sm border border-black/5 hover:shadow-md transition-all duration-300 hover:scale-[1.01] animate-fade-in`}
+              style={{ 
                 backgroundColor: cardBackground,
-                borderColor: borderColor,
-                borderWidth: '1px'
+                animationDelay: `${index * 100}ms`
               }}
             >
-              <p 
-                className="font-medium text-lg mb-4"
-                style={{ color: textColor }}
-              >
-                  {q.text} {q.required && <span className="text-red-500">*</span>}
-              </p>
-              
-              {/* Multiple Choice Render */}
-              {q.type === 'multiple_choice' && (
-                  <div className="space-y-3">
-                    {q.options.map((opt: string, idx: number) => (
-                        <label 
-                          key={idx} 
-                          className="flex items-center space-x-3 cursor-pointer p-2 rounded transition"
+              <div className="space-y-6">
+                <div className="space-y-1">
+                  <h3 className="text-xl font-medium leading-snug" style={{ color: textColor }}>
+                    {q.text} <span className="text-red-500 opacity-60 ml-0.5" title="Required">{q.required ? '*' : ''}</span>
+                  </h3>
+                </div>
+
+                <div className="">
+                  {q.type === 'multiple_choice' && (
+                    <div className="space-y-3">
+                      {q.options.map((option: string, i: number) => (
+                        <label
+                          key={i}
+                          className={`flex items-center p-4 rounded-lg border-2 cursor-pointer transition-all duration-300 group hover:scale-[1.02] hover:shadow-md button-press ${answers[q.id] === option
+                            ? 'border-opacity-100 bg-opacity-5 scale-[1.02]'
+                            : 'border-transparent bg-black/5 hover:bg-black/10'
+                            }`}
                           style={{
-                            backgroundColor: answers[q.id] === idx ? `${primaryColor}20` : 'transparent'
+                            borderColor: answers[q.id] === option ? primaryColor : 'transparent',
+                            backgroundColor: answers[q.id] === option ? `${primaryColor}10` : undefined
                           }}
                         >
-                        <input
+                          <input
                             type="radio"
-                            name={`q-${q.id}`}
-                            className="w-5 h-5 border-gray-300"
-                            style={{ 
-                              accentColor: primaryColor
-                            }}
-                            onChange={() => handleChange(q.id, idx)}
-                            checked={answers[q.id] === idx}
-                        />
-                        <span style={{ color: textColor }}>{opt}</span>
-                        </label>
-                    ))}
-                  </div>
-              )}
-
-              {/* Text Render */}
-              {q.type === 'text' && (
-                <input
-                  type="text"
-                  className={`w-full ${borderRadiusClass} p-3 border focus:ring-2`}
-                  style={{
-                    borderColor: borderColor,
-                    color: textColor,
-                    backgroundColor: cardBackground,
-                    '--tw-ring-color': primaryColor
-                  } as React.CSSProperties}
-                  placeholder="Your answer..."
-                  onChange={(e) => handleChange(q.id, e.target.value)}
-                  value={answers[q.id] || ''}
-                />
-              )}
-
-              {/* Long Text Render */}
-              {q.type === 'long_text' && (
-                <textarea
-                  className={`w-full ${borderRadiusClass} p-3 border focus:ring-2 resize-y min-h-[120px]`}
-                  style={{
-                    borderColor: borderColor,
-                    color: textColor,
-                    backgroundColor: cardBackground,
-                    '--tw-ring-color': primaryColor
-                  } as React.CSSProperties}
-                  placeholder="Your detailed answer..."
-                  onChange={(e) => handleChange(q.id, e.target.value)}
-                  value={answers[q.id] || ''}
-                />
-              )}
-
-              {/* Date Render */}
-              {q.type === 'date' && (
-                <input
-                  type="date"
-                  className={`w-full ${borderRadiusClass} p-3 border focus:ring-2`}
-                  style={{
-                    borderColor: borderColor,
-                    color: textColor,
-                    backgroundColor: cardBackground,
-                    '--tw-ring-color': primaryColor
-                  } as React.CSSProperties}
-                  onChange={(e) => handleChange(q.id, e.target.value)}
-                  value={answers[q.id] || ''}
-                />
-              )}
-
-              {/* Rating Render */}
-              {q.type === 'rating' && (
-                 <div className="flex space-x-2">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                        <button 
-                            key={star}
-                            onClick={() => handleChange(q.id, star)}
-                            className="p-1 transition-colors"
+                            name={q.id}
+                            value={option}
+                            checked={answers[q.id] === option}
+                            onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                            className="w-5 h-5 border-2 mr-4 transition-all"
                             style={{
-                              color: answers[q.id] >= star ? primaryColor : borderColor
+                              accentColor: primaryColor,
+                              borderColor: 'currentColor'
                             }}
+                          />
+                          <span className="text-lg" style={{ color: textColor }}>{option}</span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+
+                  {q.type === 'text' && (
+                    <input
+                      type="text"
+                      className={`w-full p-4 text-lg bg-transparent border-0 border-b-2 focus:ring-0 transition-all duration-300 placeholder:text-black/20 focus:scale-[1.02] focus:translate-x-1`}
+                      style={{
+                        color: textColor,
+                        borderColor: 'rgba(0,0,0,0.1)',
+                        borderBottomColor: answers[q.id] ? primaryColor : 'rgba(0,0,0,0.1)'
+                      }}
+                      placeholder="Your answer..."
+                      value={answers[q.id] || ''}
+                      onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                    />
+                  )}
+
+                  {q.type === 'long_text' && (
+                    <textarea
+                      className={`w-full p-4 text-lg bg-black/5 rounded-lg border-2 border-transparent focus:bg-transparent transition-all duration-300 placeholder:text-black/20 focus:ring-0 focus:scale-[1.01] focus:shadow-md`}
+                      style={{
+                        color: textColor,
+                        boxShadow: 'none'
+                      }}
+                      placeholder="Type your answer here..."
+                      rows={4}
+                      value={answers[q.id] || ''}
+                      onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                      onFocus={(e) => e.target.style.borderColor = primaryColor}
+                      onBlur={(e) => e.target.style.borderColor = 'transparent'}
+                    />
+                  )}
+
+                  {q.type === 'date' && (
+                    <input
+                      type="date"
+                      className="w-full p-4 text-lg bg-black/5 rounded-lg border-2 border-transparent focus:bg-transparent focus:border-opacity-100 transition-all text-zinc-900"
+                      style={{ outlineColor: primaryColor }}
+                      onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                    />
+                  )}
+
+                  {q.type === 'rating' && (
+                    <div className="flex gap-2">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          type="button"
+                          onClick={() => handleAnswerChange(q.id, star)}
+                          className="p-1 transition-all duration-300 hover:scale-125 focus:outline-none button-press"
                         >
-                            <Star fill="currentColor" size={32} />
+                          <Star
+                            size={32}
+                            fill={answers[q.id] >= star ? primaryColor : 'transparent'}
+                            color={answers[q.id] >= star ? primaryColor : '#d1d5db'}
+                            strokeWidth={1.5}
+                            className="transition-all duration-300"
+                          />
                         </button>
-                    ))}
-                 </div>
-              )}
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           ))}
+        </div>
 
-          {/* Submit Button */}
-          <div className="flex justify-end">
-            <button
-                onClick={handleSubmit}
-                className={`px-8 py-3 ${borderRadiusClass} font-bold text-white shadow-lg transition-all transform hover:-translate-y-1`}
-                style={{
-                  backgroundColor: primaryColor,
-                }}
-            >
-                Submit Form
-            </button>
+        {/* Footer Actions */}
+        <div className="flex items-center justify-between pt-8 pb-20">
+          <div className="text-sm text-zinc-400 font-medium">
+            Powered by <span className="text-zinc-900 font-bold">Form X</span>
           </div>
+
+          <button
+            onClick={handleSubmit}
+            disabled={submitting}
+            className={`px-10 py-4 ${borderRadiusClass} font-bold text-white shadow-xl shadow-black/5 hover:shadow-2xl hover:shadow-black/10 transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed text-lg ripple`}
+            style={{
+              backgroundColor: primaryColor,
+            }}
+          >
+            {submitting ? (
+              <span className="flex items-center gap-2">
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Submitting...
+              </span>
+            ) : (
+              "Submit"
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );

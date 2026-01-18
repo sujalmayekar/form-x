@@ -1,17 +1,11 @@
 import type { Metadata } from "next";
-import { Outfit, Playfair_Display } from "next/font/google";
+import { Noto_Serif } from "next/font/google"; // Import Noto Serif
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 
-const outfit = Outfit({
+const notoSerif = Noto_Serif({
   subsets: ["latin"],
-  variable: "--font-outfit",
-  display: "swap",
-});
-
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  variable: "--font-playfair",
+  variable: "--font-serif",
   display: "swap",
 });
 
@@ -29,7 +23,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body
-          className={`${outfit.variable} ${playfair.variable} antialiased`}
+          className={`${notoSerif.variable} antialiased`}
         >
           {children}
         </body>

@@ -222,9 +222,9 @@ export default function FormAnalyticsPage() {
         <div className="bg-white/5 border border-white/10 rounded-3xl p-6 md:p-7 shadow-2xl shadow-black/30 backdrop-blur-xl flex flex-col md:flex-row md:items-center md:gap-6 gap-4">
           <button
             onClick={() => router.push("/dashboard")}
-            className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition"
+            className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 hover:scale-110 hover:rotate-[-5deg] button-press"
           >
-            <ArrowLeft size={20} />
+            <ArrowLeft size={20} className="transition-transform duration-300 hover:-translate-x-1" />
           </button>
           <div className="flex-1 space-y-1">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/10 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-300">
@@ -241,17 +241,17 @@ export default function FormAnalyticsPage() {
             <button
               type="button"
               onClick={() => setIsShareOpen(true)}
-              className="px-4 py-2 rounded-xl border border-white/10 text-sm font-semibold hover:bg-white/5 transition flex items-center gap-2 bg-white/5 text-white"
+              className="px-4 py-2 rounded-xl border border-white/10 text-sm font-semibold hover:bg-white/5 transition-all duration-300 hover:scale-105 hover:shadow-lg flex items-center gap-2 bg-white/5 text-white button-press ripple"
             >
-              <Share2 size={16} />
+              <Share2 size={16} className="transition-transform duration-300 hover:rotate-12" />
               Share
             </button>
             <button
               onClick={exportToCSV}
               disabled={responses.length === 0}
-              className="px-4 py-2 rounded-xl border border-white/10 text-sm font-semibold hover:bg-white/5 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 bg-white/5 text-white"
+              className="px-4 py-2 rounded-xl border border-white/10 text-sm font-semibold hover:bg-white/5 transition-all duration-300 hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 bg-white/5 text-white button-press ripple"
             >
-              <Download size={16} />
+              <Download size={16} className="transition-transform duration-300 hover:translate-y-[-2px]" />
               Export CSV
             </button>
           </div>
@@ -259,32 +259,32 @@ export default function FormAnalyticsPage() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 shadow-xl shadow-black/20 backdrop-blur-xl">
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 shadow-xl shadow-black/20 backdrop-blur-xl hover-lift animate-fade-in transition-all duration-300 hover:border-emerald-400/50">
             <div className="flex items-center gap-3 mb-2 text-slate-300">
-              <FileText size={20} className="text-emerald-400" />
-              <span className="text-sm">Total Responses</span>
+              <FileText size={20} className="text-emerald-400 transition-all duration-300 hover:scale-110 hover:rotate-3" />
+              <span className="text-sm transition-all duration-300 hover:translate-x-1">Total Responses</span>
             </div>
-            <p className="text-3xl font-semibold text-white">{responses.length}</p>
+            <p className="text-3xl font-semibold text-white transition-all duration-300 hover:scale-110">{responses.length}</p>
           </div>
           {form.type === "quiz" && (
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 shadow-xl shadow-black/20 backdrop-blur-xl">
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 shadow-xl shadow-black/20 backdrop-blur-xl hover-lift animate-fade-in transition-all duration-300 hover:border-cyan-400/50" style={{ animationDelay: '0.1s' }}>
               <div className="flex items-center gap-3 mb-2 text-slate-300">
-                <BarChart3 size={20} className="text-cyan-300" />
-                <span className="text-sm">Average Score</span>
+                <BarChart3 size={20} className="text-cyan-300 transition-all duration-300 hover:scale-110 hover:rotate-3" />
+                <span className="text-sm transition-all duration-300 hover:translate-x-1">Average Score</span>
               </div>
-              <p className="text-3xl font-semibold text-white">
+              <p className="text-3xl font-semibold text-white transition-all duration-300 hover:scale-110">
                 {avgScore !== null
                   ? `${avgScore}/${form.questions.length}`
                   : "N/A"}
               </p>
             </div>
           )}
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 shadow-xl shadow-black/20 backdrop-blur-xl">
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 shadow-xl shadow-black/20 backdrop-blur-xl hover-lift animate-fade-in transition-all duration-300 hover:border-amber-400/50" style={{ animationDelay: '0.2s' }}>
             <div className="flex items-center gap-3 mb-2 text-slate-300">
-              <CheckCircle2 size={20} className="text-amber-300" />
-              <span className="text-sm">Questions</span>
+              <CheckCircle2 size={20} className="text-amber-300 transition-all duration-300 hover:scale-110 hover:rotate-3" />
+              <span className="text-sm transition-all duration-300 hover:translate-x-1">Questions</span>
             </div>
-            <p className="text-3xl font-semibold text-white">{form.questions.length}</p>
+            <p className="text-3xl font-semibold text-white transition-all duration-300 hover:scale-110">{form.questions.length}</p>
           </div>
         </div>
 
@@ -292,18 +292,18 @@ export default function FormAnalyticsPage() {
         <div className="flex gap-2 bg-white/5 border border-white/10 rounded-xl p-1 w-fit backdrop-blur">
           <button
             onClick={() => setActiveTab("overview")}
-            className={`px-4 py-2 text-sm font-semibold rounded-lg transition ${activeTab === "overview"
-                ? "bg-white text-slate-900 shadow-md"
-                : "text-slate-200 hover:bg-white/5"
+            className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-300 button-press ${activeTab === "overview"
+                ? "bg-white text-slate-900 shadow-md scale-105"
+                : "text-slate-200 hover:bg-white/5 hover:scale-105"
               }`}
           >
             Question Analytics
           </button>
           <button
             onClick={() => setActiveTab("responses")}
-            className={`px-4 py-2 text-sm font-semibold rounded-lg transition ${activeTab === "responses"
-                ? "bg-white text-slate-900 shadow-md"
-                : "text-slate-200 hover:bg-white/5"
+            className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-300 button-press ${activeTab === "responses"
+                ? "bg-white text-slate-900 shadow-md scale-105"
+                : "text-slate-200 hover:bg-white/5 hover:scale-105"
               }`}
           >
             All Responses ({responses.length})
@@ -318,7 +318,8 @@ export default function FormAnalyticsPage() {
               return (
                 <div
                   key={question.id}
-                  className="bg-card border border-white/5 rounded-2xl p-6"
+                  className="bg-card border border-white/5 rounded-2xl p-6 hover-lift animate-fade-in transition-all duration-300 hover:border-white/10"
+                  style={{ animationDelay: `${qIdx * 50}ms` }}
                 >
                   <div className="flex items-start gap-3 mb-4">
                     <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/20 text-primary font-semibold text-sm">
@@ -365,11 +366,14 @@ export default function FormAnalyticsPage() {
                               </div>
                               <div className="h-2 bg-white/5 rounded-full overflow-hidden">
                                 <div
-                                  className={`h-full rounded-full transition-all ${isCorrect && form.type === "quiz"
+                                  className={`h-full rounded-full transition-all duration-500 ${isCorrect && form.type === "quiz"
                                       ? "bg-green-500/60"
                                       : "bg-primary/60"
                                     }`}
-                                  style={{ width: `${percentage}%` }}
+                                  style={{ 
+                                    width: `${percentage}%`,
+                                    transition: 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)'
+                                  }}
                                 />
                               </div>
                             </div>
@@ -434,7 +438,8 @@ export default function FormAnalyticsPage() {
               responses.map((response, idx) => (
                 <div
                   key={response._id}
-                  className="bg-card border border-white/5 rounded-2xl p-6"
+                  className="bg-card border border-white/5 rounded-2xl p-6 hover-lift animate-fade-in transition-all duration-300 hover:border-white/10"
+                  style={{ animationDelay: `${idx * 30}ms` }}
                 >
                   <div className="flex items-center justify-between mb-4 pb-4 border-b border-white/5">
                     <div>
@@ -519,9 +524,9 @@ export default function FormAnalyticsPage() {
 
       {/* Share Modal */}
       {isShareOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsShareOpen(false)} />
-          <div className="relative max-w-lg w-full bg-slate-900 border border-white/10 rounded-2xl shadow-2xl shadow-black/40 p-6 space-y-5">
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 animate-fade-in">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => setIsShareOpen(false)} />
+          <div className="relative max-w-lg w-full bg-slate-900 border border-white/10 rounded-2xl shadow-2xl shadow-black/40 p-6 space-y-5 animate-scale-in hover-lift">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <h2 className="text-lg font-semibold text-white">Share form</h2>
@@ -530,7 +535,7 @@ export default function FormAnalyticsPage() {
               <button
                 type="button"
                 onClick={() => setIsShareOpen(false)}
-                className="p-1.5 rounded-lg hover:bg-white/5 text-slate-300"
+                className="p-1.5 rounded-lg hover:bg-white/5 text-slate-300 transition-all duration-300 hover:scale-110 hover:rotate-90 button-press"
               >
                 <XCircle size={18} />
               </button>
@@ -556,10 +561,10 @@ export default function FormAnalyticsPage() {
                       console.error("Copy failed", e);
                     }
                   }}
-                  className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-xs font-semibold text-white hover:bg-white/10 flex items-center gap-1"
+                  className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-xs font-semibold text-white hover:bg-white/10 flex items-center gap-1 transition-all duration-300 hover:scale-105 button-press"
                 >
-                  <Copy size={14} />
-                  {copiedField === "link" ? "Copied" : "Copy"}
+                  <Copy size={14} className="transition-transform duration-300" />
+                  {copiedField === "link" ? "Copied ✓" : "Copy"}
                 </button>
               </div>
             </div>
@@ -585,10 +590,10 @@ export default function FormAnalyticsPage() {
                       console.error("Copy failed", e);
                     }
                   }}
-                  className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-xs font-semibold text-white hover:bg-white/10 flex items-center gap-1 self-start"
+                  className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-xs font-semibold text-white hover:bg-white/10 flex items-center gap-1 self-start transition-all duration-300 hover:scale-105 button-press"
                 >
-                  <Copy size={14} />
-                  {copiedField === "embed" ? "Copied" : "Copy"}
+                  <Copy size={14} className="transition-transform duration-300" />
+                  {copiedField === "embed" ? "Copied ✓" : "Copy"}
                 </button>
               </div>
             </div>
