@@ -257,8 +257,8 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
                   key={q.id}
                   onClick={() => setActiveQuestionId(q.id)}
                   className={`group relative p-6 rounded-lg border transition-all duration-300 cursor-pointer ${activeQuestionId === q.id
-                      ? "bg-zinc-900 border-zinc-700 ring-1 ring-zinc-700 scale-[1.02] shadow-lg"
-                      : "bg-transparent border-transparent hover:border-zinc-800 hover:bg-zinc-900/30 hover:scale-[1.01]"
+                    ? "bg-zinc-900 border-zinc-700 ring-1 ring-zinc-700 scale-[1.02] shadow-lg"
+                    : "bg-transparent border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900/30 hover:scale-[1.01]"
                     }`}
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
@@ -294,8 +294,8 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
                             <div key={idx} className="flex items-center gap-3 group/opt">
                               <div
                                 className={`w-4 h-4 rounded-full border flex items-center justify-center cursor-pointer transition-colors ${q.correctAnswer === idx
-                                    ? "border-emerald-500 bg-emerald-500/20"
-                                    : "border-zinc-700 hover:border-zinc-500"
+                                  ? "border-emerald-500 bg-emerald-500/20"
+                                  : "border-zinc-700 hover:border-zinc-500"
                                   }`}
                                 onClick={() => form.type === "quiz" && updateQuestion(q.id, "correctAnswer", idx)}
                               >
@@ -449,12 +449,21 @@ const ThemeSettingsPanel = ({ form, setForm }: { form: Form; setForm: (form: For
               key={color}
               onClick={() => updateTheme('primaryColor', color)}
               className={`w-6 h-6 rounded border transition-all ${(form.theme?.primaryColor || '#fafafa') === color
-                  ? 'border-white ring-1 ring-white'
-                  : 'border-transparent ring-1 ring-zinc-800 hover:ring-zinc-600'
+                ? 'border-white ring-1 ring-white'
+                : 'border-transparent ring-1 ring-zinc-800 hover:ring-zinc-600'
                 }`}
               style={{ backgroundColor: color }}
             />
           ))}
+          <div className="relative group w-6 h-6">
+            <input
+              type="color"
+              value={form.theme?.primaryColor || '#fafafa'}
+              onChange={(e) => updateTheme('primaryColor', e.target.value)}
+              className="opacity-0 absolute inset-0 w-full h-full cursor-pointer z-10"
+            />
+            <div className="w-full h-full rounded border border-zinc-800 bg-gradient-to-br from-red-500 via-green-500 to-blue-500 hover:border-zinc-600 transition-all shadow-sm" />
+          </div>
         </div>
       </div>
 
@@ -466,8 +475,13 @@ const ThemeSettingsPanel = ({ form, setForm }: { form: Form; setForm: (form: For
           className="w-full bg-zinc-900 border border-zinc-800 rounded-md text-sm p-2 text-zinc-300 outline-none focus:border-zinc-700"
         >
           <option value="inter">Inter (Sans)</option>
-          <option value="playfair">Playfair (Serif)</option>
           <option value="roboto">Roboto</option>
+          <option value="open-sans">Open Sans</option>
+          <option value="lato">Lato</option>
+          <option value="montserrat">Montserrat</option>
+          <option value="poppins">Poppins</option>
+          <option value="playfair">Playfair (Serif)</option>
+          <option value="merriweather">Merriweather (Serif)</option>
           <option value="mono">Monospace</option>
         </select>
       </div>
@@ -475,18 +489,60 @@ const ThemeSettingsPanel = ({ form, setForm }: { form: Form; setForm: (form: For
       <div className="space-y-3">
         <label className="text-xs font-medium text-zinc-400">Border Radius</label>
         <div className="flex p-1 bg-zinc-900 rounded-lg border border-zinc-800">
-          {['sm', 'md', 'lg', 'full'].map(radius => (
+          {['sm', 'md', 'lg'].map(radius => (
             <button
               key={radius}
               onClick={() => updateTheme('borderRadius', radius)}
               className={`flex-1 py-1 text-[10px] uppercase font-bold rounded transition-colors ${(form.theme?.borderRadius || 'lg') === radius
-                  ? 'bg-zinc-800 text-white'
-                  : 'text-zinc-600 hover:text-zinc-400'
+                ? 'bg-zinc-800 text-white'
+                : 'text-zinc-600 hover:text-zinc-400'
                 }`}
             >
               {radius}
             </button>
           ))}
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <label className="text-xs font-medium text-zinc-400">Background Pattern</label>
+        <select
+          value={form.theme?.backgroundPattern || 'none'}
+          onChange={(e) => updateTheme('backgroundPattern', e.target.value)}
+          className="w-full bg-zinc-900 border border-zinc-800 rounded-md text-sm p-2 text-zinc-300 outline-none focus:border-zinc-700"
+        >
+          <option value="none">None</option>
+          <option value="grid">Grid (Technical)</option>
+          <option value="polka">Polka Dot</option>
+          <option value="stripes">Stripes</option>
+          <option value="wavy">Wavy Lines</option>
+          <option value="solid">Solid Color</option>
+        </select>
+      </div>
+
+      <hr className="border-zinc-800" />
+
+      <div className="space-y-3">
+        <label className="text-xs font-medium text-zinc-400">Availability</label>
+        <div className="space-y-2">
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] text-zinc-500 uppercase">Starts</label>
+            <input
+              type="date"
+              className="bg-zinc-900 border border-zinc-800 rounded px-2 py-1 text-xs text-zinc-300 focus:border-zinc-700 outline-none"
+              value={form.startDate ? new Date(form.startDate).toISOString().split('T')[0] : ''}
+              onChange={(e) => setForm({ ...form, startDate: e.target.value ? new Date(e.target.value) : undefined })}
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] text-zinc-500 uppercase">Ends</label>
+            <input
+              type="date"
+              className="bg-zinc-900 border border-zinc-800 rounded px-2 py-1 text-xs text-zinc-300 focus:border-zinc-700 outline-none"
+              value={form.endDate ? new Date(form.endDate).toISOString().split('T')[0] : ''}
+              onChange={(e) => setForm({ ...form, endDate: e.target.value ? new Date(e.target.value) : undefined })}
+            />
+          </div>
         </div>
       </div>
 

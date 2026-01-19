@@ -57,10 +57,7 @@ export default function TemplatesPage() {
     const [creatingId, setCreatingId] = useState<string | null>(null);
 
     const handleCreateTemplate = async (template: typeof templates[0]) => {
-        if (!user) {
-            router.push('/sign-in');
-            return;
-        }
+
 
         setCreatingId(template.id);
 

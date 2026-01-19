@@ -160,7 +160,7 @@ const LandingScreen: React.FC<LandingScreenProps> = ({ onCreate }) => {
               style={{ animationDelay: '0.3s' }}
             >
               <div className="relative z-10 h-full flex flex-col justify-center max-w-lg">
-                <h3 className="font-serif text-4xl md:text-5xl text-white mb-4 italic tracking-tight transition-all duration-300 group-hover:translate-x-1">Explore Templates</h3>
+                <h3 className="font-serif text-4xl md:text-5xl mb-4 italic tracking-tight transition-all duration-300 group-hover:translate-x-1 bg-gradient-to-r from-[#fff200] to-[#ff8000] bg-clip-text text-transparent">Explore Templates</h3>
                 <p className="text-zinc-400 text-lg leading-relaxed transition-all duration-300 group-hover:text-zinc-300">
                   Templates allow you to quickly create forms using predefined structures and commonly used fields.
                   This helps reduce repetitive work, saves time, and ensures consistency.

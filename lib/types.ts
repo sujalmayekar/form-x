@@ -16,9 +16,10 @@ export interface FormTheme {
   cardBackground?: string;
   textColor?: string;
   borderColor?: string;
-  fontFamily?: 'inter' | 'roboto' | 'open-sans' | 'lato' | 'montserrat' | 'playfair';
-  borderRadius?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
+  fontFamily?: 'inter' | 'roboto' | 'open-sans' | 'lato' | 'montserrat' | 'playfair' | 'poppins' | 'merriweather';
+  borderRadius?: 'sm' | 'md' | 'lg' | 'xl';
   headerStyle?: 'default' | 'centered' | 'minimal' | 'banner';
+  backgroundPattern?: 'none' | 'grid' | 'polka' | 'stripes' | 'wavy' | 'solid';
 }
 
 export interface Form {
@@ -29,6 +30,8 @@ export interface Form {
   questions: Question[];
   theme?: FormTheme;
   isOpen?: boolean;
+  startDate?: string | Date;
+  endDate?: string | Date;
   thankYouTitle?: string;
   thankYouDescription?: string;
 }

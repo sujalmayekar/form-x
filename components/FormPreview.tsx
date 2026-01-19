@@ -23,35 +23,67 @@ const FormPreview: React.FC<FormPreviewProps> = ({ form, onBack }) => {
       'open-sans': '"Open Sans", var(--font-sans)',
       lato: 'Lato, var(--font-sans)',
       montserrat: 'Montserrat, var(--font-sans)',
+      poppins: 'Poppins, var(--font-sans)',
       playfair: '"Playfair Display", var(--font-display)',
+      merriweather: 'Merriweather, serif',
+      mono: 'monospace',
     };
 
     return {
-      primary: form.theme?.primaryColor || '#fafafa', // Default to white for technical theme
-      background: form.theme?.backgroundColor || '#09090b', // Zinc 950
-      card: form.theme?.cardBackground || '#18181b', // Zinc 900
-      text: form.theme?.textColor || '#f4f4f5', // Zinc 100
-      border: form.theme?.borderColor || '#27272a', // Zinc 800
+      primary: form.theme?.primaryColor || '#fafafa',
+      background: form.theme?.backgroundColor || '#09090b',
+      card: form.theme?.cardBackground || '#18181b',
+      text: form.theme?.textColor || '#f4f4f5',
+      border: form.theme?.borderColor || '#27272a',
       radius: radiusMap[form.theme?.borderRadius || 'lg'],
       font: fontMap[form.theme?.fontFamily || 'inter'],
       headerStyle: form.theme?.headerStyle || 'default',
+      pattern: form.theme?.backgroundPattern || 'none',
     };
   }, [form.theme]);
 
   // Ensure high contrast for text if the primary color is light
   const isLightPrimary = theme.primary.toLowerCase() === '#ffffff' || theme.primary.toLowerCase() === '#fafafa';
-  const badgeTextColor = isLightPrimary ? '#000000' : theme.primary;
-  const badgeBgColor = isLightPrimary ? '#ffffff' : `${theme.primary}1a`; // 10% opacity
+
+  const getPatternStyle = () => {
+    switch (theme.pattern) {
+      case 'grid':
+        return {
+          backgroundImage: `linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px)`,
+          backgroundSize: '40px 40px',
+        };
+      case 'polka':
+        return {
+          backgroundImage: `radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px)`,
+          backgroundSize: '20px 20px',
+        };
+      case 'stripes':
+        return {
+          backgroundImage: `repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.03) 0px, rgba(255, 255, 255, 0.03) 10px, transparent 10px, transparent 20px)`,
+        };
+      case 'wavy':
+        return {
+          backgroundImage: `repeating-radial-gradient(circle at 0 0, transparent 0, rgba(255, 255, 255, 0.03) 10px), repeating-linear-gradient(rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.03))`,
+        };
+      case 'solid':
+      default:
+        return {};
+    }
+  };
 
   return (
     <div
       className="min-h-screen pb-28 relative overflow-hidden font-sans bg-zinc-950 text-zinc-100"
       style={{
         fontFamily: theme.font,
+        backgroundColor: theme.background,
       }}
     >
-      {/* Technical Grid Background */}
-      <div className="fixed inset-0 pointer-events-none z-0 technical-grid" />
+      {/* Background Pattern */}
+      <div
+        className="fixed inset-0 pointer-events-none z-0"
+        style={getPatternStyle()}
+      />
 
       {/* Header */}
       <div className="sticky top-0 z-20 border-b border-white/10 bg-zinc-950/80 backdrop-blur-xl">
