@@ -5,7 +5,7 @@ import Form from '@/models/Form';
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     await dbConnect();
-    
+
     const { id } = await params;
 
     // Find the form by the ID provided in the URL
@@ -19,5 +19,32 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
     return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    await dbConnect();
+    const { id } = await params;
+
+    const deletedForm = await Form.findByIdAndDelete(id);
+
+    if (!deletedForm) {
+      return NextResponse.json(
+        { success: false, error: "Form not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(
+      { success: true, message: "Form deleted successfully" },
+      { status: 200 }
+    );
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+    return NextResponse.json(
+      { success: false, error: errorMessage },
+      { status: 500 }
+    );
   }
 }

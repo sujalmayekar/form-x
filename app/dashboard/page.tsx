@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { BarChart3, FileText, Calendar, Eye } from 'lucide-react';
+import { BarChart3, FileText, Calendar, Eye, Trash2 } from 'lucide-react';
 
 interface Form {
   _id: string;
@@ -52,6 +52,27 @@ export default function DashboardPage() {
       console.error('Error fetching forms:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const deleteForm = async (e: React.MouseEvent, formId: string) => {
+    e.stopPropagation();
+    if (!confirm('Are you sure you want to delete this form? This action cannot be undone.')) return;
+
+    try {
+      const res = await fetch(`/api/forms/${formId}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setForms(forms.filter((f) => f._id !== formId));
+      } else {
+        alert('Failed to delete form');
+      }
+    } catch (error) {
+      console.error('Error deleting form:', error);
+      alert('Error deleting form');
     }
   };
 
@@ -130,6 +151,13 @@ export default function DashboardPage() {
                     <p className="text-xs font-mono text-zinc-500 uppercase tracking-wider">{form.type}</p>
                   </div>
                   <div className={`w-2 h-2 rounded-full transition-all duration-300 ${responseCounts[form._id] ? 'bg-emerald-500 animate-pulse-subtle' : 'bg-zinc-700'} group-hover:scale-150`} />
+                  <button
+                    onClick={(e) => deleteForm(e, form._id)}
+                    className="absolute top-6 right-6 p-2 rounded-md hover:bg-red-500/10 text-zinc-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all duration-300"
+                    title="Delete form"
+                  >
+                    <Trash2 size={16} />
+                  </button>
                 </div>
 
                 {form.description && (

@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import { useParams, useRouter } from "next/navigation";
-import { Form, Question } from "@/lib/types";
+import { Form } from "@/lib/types";
 import {
   ArrowLeft,
   BarChart3,
@@ -209,49 +209,45 @@ export default function FormAnalyticsPage() {
   const embedCode = `<iframe src="${publicLink}" width="100%" height="600" frameborder="0" style="border:0;"></iframe>`;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-foreground relative overflow-hidden">
+    <div className="min-h-screen bg-background text-foreground relative overflow-hidden font-sans">
       <Navbar />
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-24 left-6 w-80 h-80 rounded-full blur-3xl opacity-30 bg-primary" />
-        <div className="absolute top-0 right-0 w-[420px] h-[420px] rounded-full blur-[120px] opacity-25 bg-cyan-300" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.05),transparent_40%),radial-gradient(circle_at_80%_0%,rgba(255,255,255,0.05),transparent_40%)]" />
-      </div>
+      <div className="fixed inset-0 pointer-events-none z-0 technical-grid" />
 
-      <div className="relative max-w-7xl mx-auto pt-28 px-6 pb-16 space-y-8">
+      <div className="relative z-10 max-w-7xl mx-auto pt-28 px-6 pb-16 space-y-8">
         {/* Header */}
-        <div className="bg-white/5 border border-white/10 rounded-3xl p-6 md:p-7 shadow-2xl shadow-black/30 backdrop-blur-xl flex flex-col md:flex-row md:items-center md:gap-6 gap-4">
+        <div className="bg-zinc-900/40 border border-white/5 rounded-lg p-6 md:p-7 backdrop-blur-xl flex flex-col md:flex-row md:items-center md:gap-6 gap-4 animate-fade-in">
           <button
             onClick={() => router.push("/dashboard")}
-            className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 hover:scale-110 hover:rotate-[-5deg] button-press"
+            className="p-2 rounded-md bg-zinc-900 border border-white/5 hover:bg-zinc-800 hover:border-white/10 transition-all duration-300 button-press"
           >
-            <ArrowLeft size={20} className="transition-transform duration-300 hover:-translate-x-1" />
+            <ArrowLeft size={18} className="text-zinc-400" />
           </button>
           <div className="flex-1 space-y-1">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/10 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-300">
+            <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-sm bg-zinc-800/50 border border-zinc-700 text-[10px] font-mono uppercase tracking-wider text-zinc-400">
               Analytics
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white">
+            <h1 className="text-2xl md:text-3xl font-serif tracking-tight text-white">
               {form.title}
             </h1>
             {form.description && (
-              <p className="text-slate-300 mt-1">{form.description}</p>
+              <p className="text-zinc-400 mt-1 max-w-2xl">{form.description}</p>
             )}
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
             <button
               type="button"
               onClick={() => setIsShareOpen(true)}
-              className="px-4 py-2 rounded-xl border border-white/10 text-sm font-semibold hover:bg-white/5 transition-all duration-300 hover:scale-105 hover:shadow-lg flex items-center gap-2 bg-white/5 text-white button-press ripple"
+              className="px-4 py-2 rounded-md border border-zinc-700 hover:border-zinc-500 text-sm font-medium hover:bg-zinc-800 transition-all duration-300 flex items-center gap-2 bg-zinc-900 text-zinc-200 button-press ripple"
             >
-              <Share2 size={16} className="transition-transform duration-300 hover:rotate-12" />
+              <Share2 size={14} />
               Share
             </button>
             <button
               onClick={exportToCSV}
               disabled={responses.length === 0}
-              className="px-4 py-2 rounded-xl border border-white/10 text-sm font-semibold hover:bg-white/5 transition-all duration-300 hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 bg-white/5 text-white button-press ripple"
+              className="px-4 py-2 rounded-md border border-zinc-700 hover:border-zinc-500 text-sm font-medium hover:bg-zinc-800 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 bg-zinc-900 text-zinc-200 button-press ripple"
             >
-              <Download size={16} className="transition-transform duration-300 hover:translate-y-[-2px]" />
+              <Download size={14} />
               Export CSV
             </button>
           </div>
@@ -259,54 +255,54 @@ export default function FormAnalyticsPage() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 shadow-xl shadow-black/20 backdrop-blur-xl hover-lift animate-fade-in transition-all duration-300 hover:border-emerald-400/50">
-            <div className="flex items-center gap-3 mb-2 text-slate-300">
-              <FileText size={20} className="text-emerald-400 transition-all duration-300 hover:scale-110 hover:rotate-3" />
-              <span className="text-sm transition-all duration-300 hover:translate-x-1">Total Responses</span>
+          <div className="bg-zinc-900/40 border border-white/5 rounded-lg p-6 hover-lift animate-fade-in transition-all duration-300 hover:border-white/10 group">
+            <div className="flex items-center gap-3 mb-2 text-zinc-400">
+              <FileText size={16} className="text-emerald-500/80 transition-all duration-300 group-hover:text-emerald-400" />
+              <span className="text-xs font-mono uppercase tracking-wider">Total Responses</span>
             </div>
-            <p className="text-3xl font-semibold text-white transition-all duration-300 hover:scale-110">{responses.length}</p>
+            <p className="text-3xl font-serif text-white">{responses.length}</p>
           </div>
           {form.type === "quiz" && (
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 shadow-xl shadow-black/20 backdrop-blur-xl hover-lift animate-fade-in transition-all duration-300 hover:border-cyan-400/50" style={{ animationDelay: '0.1s' }}>
-              <div className="flex items-center gap-3 mb-2 text-slate-300">
-                <BarChart3 size={20} className="text-cyan-300 transition-all duration-300 hover:scale-110 hover:rotate-3" />
-                <span className="text-sm transition-all duration-300 hover:translate-x-1">Average Score</span>
+            <div className="bg-zinc-900/40 border border-white/5 rounded-lg p-6 hover-lift animate-fade-in transition-all duration-300 hover:border-white/10 group" style={{ animationDelay: '0.1s' }}>
+              <div className="flex items-center gap-3 mb-2 text-zinc-400">
+                <BarChart3 size={16} className="text-cyan-500/80 transition-all duration-300 group-hover:text-cyan-400" />
+                <span className="text-xs font-mono uppercase tracking-wider">Average Score</span>
               </div>
-              <p className="text-3xl font-semibold text-white transition-all duration-300 hover:scale-110">
+              <p className="text-3xl font-serif text-white">
                 {avgScore !== null
                   ? `${avgScore}/${form.questions.length}`
                   : "N/A"}
               </p>
             </div>
           )}
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 shadow-xl shadow-black/20 backdrop-blur-xl hover-lift animate-fade-in transition-all duration-300 hover:border-amber-400/50" style={{ animationDelay: '0.2s' }}>
-            <div className="flex items-center gap-3 mb-2 text-slate-300">
-              <CheckCircle2 size={20} className="text-amber-300 transition-all duration-300 hover:scale-110 hover:rotate-3" />
-              <span className="text-sm transition-all duration-300 hover:translate-x-1">Questions</span>
+          <div className="bg-zinc-900/40 border border-white/5 rounded-lg p-6 hover-lift animate-fade-in transition-all duration-300 hover:border-white/10 group" style={{ animationDelay: '0.2s' }}>
+            <div className="flex items-center gap-3 mb-2 text-zinc-400">
+              <CheckCircle2 size={16} className="text-amber-500/80 transition-all duration-300 group-hover:text-amber-400" />
+              <span className="text-xs font-mono uppercase tracking-wider">Questions</span>
             </div>
-            <p className="text-3xl font-semibold text-white transition-all duration-300 hover:scale-110">{form.questions.length}</p>
+            <p className="text-3xl font-serif text-white">{form.questions.length}</p>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 bg-white/5 border border-white/10 rounded-xl p-1 w-fit backdrop-blur">
+        <div className="flex gap-2 border-b border-white/5 pb-1">
           <button
             onClick={() => setActiveTab("overview")}
-            className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-300 button-press ${activeTab === "overview"
-                ? "bg-white text-slate-900 shadow-md scale-105"
-                : "text-slate-200 hover:bg-white/5 hover:scale-105"
+            className={`px-4 py-2 text-sm font-medium transition-all duration-300 border-b-2 ${activeTab === "overview"
+              ? "border-white text-white"
+              : "border-transparent text-zinc-500 hover:text-zinc-300"
               }`}
           >
             Question Analytics
           </button>
           <button
             onClick={() => setActiveTab("responses")}
-            className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-300 button-press ${activeTab === "responses"
-                ? "bg-white text-slate-900 shadow-md scale-105"
-                : "text-slate-200 hover:bg-white/5 hover:scale-105"
+            className={`px-4 py-2 text-sm font-medium transition-all duration-300 border-b-2 ${activeTab === "responses"
+              ? "border-white text-white"
+              : "border-transparent text-zinc-500 hover:text-zinc-300"
               }`}
           >
-            All Responses ({responses.length})
+            All Responses <span className="text-zinc-600 ml-1">({responses.length})</span>
           </button>
         </div>
 
@@ -318,18 +314,18 @@ export default function FormAnalyticsPage() {
               return (
                 <div
                   key={question.id}
-                  className="bg-card border border-white/5 rounded-2xl p-6 hover-lift animate-fade-in transition-all duration-300 hover:border-white/10"
+                  className="bg-zinc-900/20 border border-white/5 rounded-lg p-6 hover-lift animate-fade-in transition-all duration-300"
                   style={{ animationDelay: `${qIdx * 50}ms` }}
                 >
-                  <div className="flex items-start gap-3 mb-4">
-                    <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/20 text-primary font-semibold text-sm">
+                  <div className="flex items-center gap-3 mb-6">
+                    <span className="flex items-center justify-center w-6 h-6 rounded bg-zinc-800 text-zinc-400 font-mono text-xs">
                       {qIdx + 1}
                     </span>
                     <div className="flex-1">
-                      <h3 className="text-lg font-semibold mb-1">
+                      <h3 className="text-base font-medium text-zinc-200">
                         {question.text}
                       </h3>
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-white/5 text-muted-foreground">
+                      <span className="text-[10px] uppercase tracking-wider text-zinc-500 font-mono">
                         {question.type}
                       </span>
                     </div>
@@ -338,7 +334,7 @@ export default function FormAnalyticsPage() {
                   {question.type === "multiple_choice" &&
                     question.options &&
                     stats && (
-                      <div className="space-y-3 mt-4">
+                      <div className="space-y-3">
                         {question.options.map((option, optIdx) => {
                           const count =
                             (stats as Record<number, number>)[optIdx] || 0;
@@ -349,28 +345,28 @@ export default function FormAnalyticsPage() {
                           const isCorrect = question.correctAnswer === optIdx;
 
                           return (
-                            <div key={optIdx} className="space-y-1.5">
+                            <div key={optIdx} className="group space-y-2">
                               <div className="flex items-center justify-between text-sm">
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 text-zinc-300">
                                   <span>{option}</span>
                                   {form.type === "quiz" && isCorrect && (
                                     <CheckCircle2
                                       size={14}
-                                      className="text-green-500"
+                                      className="text-emerald-500"
                                     />
                                   )}
                                 </div>
-                                <span className="text-muted-foreground">
+                                <span className="text-zinc-500 font-mono text-xs">
                                   {count} ({percentage}%)
                                 </span>
                               </div>
-                              <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                              <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
                                 <div
                                   className={`h-full rounded-full transition-all duration-500 ${isCorrect && form.type === "quiz"
-                                      ? "bg-green-500/60"
-                                      : "bg-primary/60"
+                                    ? "bg-emerald-500/50"
+                                    : "bg-zinc-200/50 group-hover:bg-zinc-200"
                                     }`}
-                                  style={{ 
+                                  style={{
                                     width: `${percentage}%`,
                                     transition: 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)'
                                   }}
@@ -388,22 +384,22 @@ export default function FormAnalyticsPage() {
                       <div className="mt-4">
                         <div className="flex items-center gap-4">
                           <div>
-                            <p className="text-2xl font-semibold">
+                            <p className="text-2xl font-serif text-white">
                               {stats.average}
                             </p>
-                            <p className="text-sm text-muted-foreground">
-                              Average rating
+                            <p className="text-xs text-zinc-500 uppercase tracking-wider">
+                              Average
                             </p>
                           </div>
                           <div className="flex gap-1">
                             {[1, 2, 3, 4, 5].map((rating) => (
                               <Star
                                 key={rating}
-                                size={24}
+                                size={20}
                                 className={
                                   rating <= Math.round(stats.average)
-                                    ? "text-yellow-500 fill-yellow-500"
-                                    : "text-white/10"
+                                    ? "text-yellow-500/80 fill-yellow-500/80"
+                                    : "text-zinc-800"
                                 }
                               />
                             ))}
@@ -413,8 +409,8 @@ export default function FormAnalyticsPage() {
                     )}
 
                   {question.type === "text" && (
-                    <div className="mt-4 p-4 bg-white/5 rounded-lg">
-                      <p className="text-sm text-muted-foreground">
+                    <div className="mt-4 p-4 bg-zinc-900 border border-zinc-800 rounded-md">
+                      <p className="text-xs text-zinc-500 font-mono">
                         {responses.filter((r) => r.answers[question.id]).length}{" "}
                         text responses collected
                       </p>
@@ -427,33 +423,33 @@ export default function FormAnalyticsPage() {
         ) : (
           <div className="space-y-4">
             {responses.length === 0 ? (
-              <div className="bg-card border border-white/5 rounded-2xl p-12 text-center">
+              <div className="border border-dashed border-zinc-800 rounded-lg p-12 text-center bg-zinc-900/20">
                 <FileText
-                  size={48}
-                  className="mx-auto mb-4 text-muted-foreground/50"
+                  size={32}
+                  className="mx-auto mb-4 text-zinc-700"
                 />
-                <p className="text-muted-foreground">No responses yet</p>
+                <p className="text-zinc-500">No responses yet</p>
               </div>
             ) : (
               responses.map((response, idx) => (
                 <div
                   key={response._id}
-                  className="bg-card border border-white/5 rounded-2xl p-6 hover-lift animate-fade-in transition-all duration-300 hover:border-white/10"
+                  className="bg-zinc-900/20 border border-white/5 rounded-lg p-6 hover-lift animate-fade-in transition-all duration-300"
                   style={{ animationDelay: `${idx * 30}ms` }}
                 >
-                  <div className="flex items-center justify-between mb-4 pb-4 border-b border-white/5">
+                  <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/5">
                     <div>
-                      <p className="font-semibold">Response #{idx + 1}</p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="font-medium text-zinc-200">Response #{idx + 1}</p>
+                      <p className="text-xs text-zinc-500 font-mono mt-1">
                         {formatDate(response.submittedAt)}
                       </p>
                     </div>
                     {form.type === "quiz" && (
                       <div className="text-right">
-                        <p className="text-2xl font-semibold text-primary">
+                        <p className="text-xl font-serif text-white">
                           {response.score || 0}/{form.questions.length}
                         </p>
-                        <p className="text-xs text-muted-foreground">Score</p>
+                        <p className="text-[10px] uppercase tracking-wider text-zinc-500">Score</p>
                       </div>
                     )}
                   </div>
@@ -462,32 +458,32 @@ export default function FormAnalyticsPage() {
                       const answer = response.answers[question.id];
                       return (
                         <div key={question.id}>
-                          <p className="text-sm font-medium text-muted-foreground mb-2">
+                          <p className="text-sm text-zinc-400 mb-2">
                             {question.text}
                           </p>
-                          <div className="text-foreground">
+                          <div className="text-zinc-200">
                             {question.type === "multiple_choice" &&
                               question.options &&
                               typeof answer === "number" && (
                                 <div className="flex items-center gap-2">
-                                  <span>{question.options[answer]}</span>
+                                  <span className="bg-zinc-800 px-2 py-1 rounded text-sm">{question.options[answer]}</span>
                                   {form.type === "quiz" &&
                                     question.correctAnswer !== undefined &&
                                     (question.correctAnswer === answer ? (
                                       <CheckCircle2
-                                        size={16}
-                                        className="text-green-500"
+                                        size={14}
+                                        className="text-emerald-500"
                                       />
                                     ) : (
                                       <XCircle
-                                        size={16}
+                                        size={14}
                                         className="text-red-500"
                                       />
                                     ))}
                                 </div>
                               )}
                             {question.type === "text" && (
-                              <p className="text-sm bg-white/5 p-3 rounded-lg">
+                              <p className="text-sm bg-zinc-900 border border-zinc-800 p-3 rounded text-zinc-300 font-mono">
                                 {answer || "No answer"}
                               </p>
                             )}
@@ -497,19 +493,23 @@ export default function FormAnalyticsPage() {
                                   {[1, 2, 3, 4, 5].map((rating) => (
                                     <Star
                                       key={rating}
-                                      size={20}
+                                      size={16}
                                       className={
                                         rating <= answer
-                                          ? "text-yellow-500 fill-yellow-500"
-                                          : "text-white/10"
+                                          ? "text-yellow-500/80 fill-yellow-500/80"
+                                          : "text-zinc-800"
                                       }
                                     />
                                   ))}
-                                  <span className="ml-2 text-sm text-muted-foreground">
+                                  <span className="ml-2 text-xs text-zinc-500 font-mono">
                                     ({answer}/5)
                                   </span>
                                 </div>
                               )}
+                            {/* Fallback for other types or null answers */}
+                            {!['multiple_choice', 'text', 'rating'].includes(question.type) && answer && (
+                              <p className="text-sm text-zinc-300">{String(answer)}</p>
+                            )}
                           </div>
                         </div>
                       );
@@ -525,30 +525,30 @@ export default function FormAnalyticsPage() {
       {/* Share Modal */}
       {isShareOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4 animate-fade-in">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => setIsShareOpen(false)} />
-          <div className="relative max-w-lg w-full bg-slate-900 border border-white/10 rounded-2xl shadow-2xl shadow-black/40 p-6 space-y-5 animate-scale-in hover-lift">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-fade-in" onClick={() => setIsShareOpen(false)} />
+          <div className="relative max-w-lg w-full bg-zinc-900 border border-zinc-800 rounded-lg shadow-2xl shadow-black/40 p-6 space-y-5 animate-scale-in">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <h2 className="text-lg font-semibold text-white">Share form</h2>
-                <p className="text-xs text-slate-400 mt-1">Copy the link, embed on your site, or share via QR code.</p>
+                <h2 className="text-lg font-medium text-white">Share form</h2>
+                <p className="text-sm text-zinc-500 mt-1">Copy the link or embed code.</p>
               </div>
               <button
                 type="button"
                 onClick={() => setIsShareOpen(false)}
-                className="p-1.5 rounded-lg hover:bg-white/5 text-slate-300 transition-all duration-300 hover:scale-110 hover:rotate-90 button-press"
+                className="p-1.5 rounded hover:bg-zinc-800 text-zinc-400 transition-all duration-300"
               >
                 <XCircle size={18} />
               </button>
             </div>
 
             {/* Public link */}
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-slate-300">Public link</label>
+            <div className="space-y-2">
+              <label className="text-xs font-mono uppercase tracking-wider text-zinc-500">Public link</label>
               <div className="flex gap-2">
                 <input
                   readOnly
                   value={publicLink}
-                  className="flex-1 px-3 py-2 rounded-lg bg-slate-950 border border-white/10 text-xs text-slate-100 overflow-x-auto"
+                  className="flex-1 px-3 py-2 rounded bg-black border border-zinc-800 text-xs text-zinc-300 font-mono"
                 />
                 <button
                   type="button"
@@ -561,23 +561,23 @@ export default function FormAnalyticsPage() {
                       console.error("Copy failed", e);
                     }
                   }}
-                  className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-xs font-semibold text-white hover:bg-white/10 flex items-center gap-1 transition-all duration-300 hover:scale-105 button-press"
+                  className="px-3 py-2 rounded bg-white text-black text-xs font-medium hover:bg-zinc-200 transition-all duration-300 flex items-center gap-1"
                 >
-                  <Copy size={14} className="transition-transform duration-300" />
-                  {copiedField === "link" ? "Copied ✓" : "Copy"}
+                  <Copy size={12} />
+                  {copiedField === "link" ? "Copied" : "Copy"}
                 </button>
               </div>
             </div>
 
             {/* Embed code */}
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-slate-300">Embed code</label>
+            <div className="space-y-2">
+              <label className="text-xs font-mono uppercase tracking-wider text-zinc-500">Embed code</label>
               <div className="flex gap-2">
                 <textarea
                   readOnly
                   rows={3}
                   value={embedCode}
-                  className="flex-1 px-3 py-2 rounded-lg bg-slate-950 border border-white/10 text-xs text-slate-100 font-mono"
+                  className="flex-1 px-3 py-2 rounded bg-black border border-zinc-800 text-xs text-zinc-300 font-mono resize-none"
                 />
                 <button
                   type="button"
@@ -590,27 +590,29 @@ export default function FormAnalyticsPage() {
                       console.error("Copy failed", e);
                     }
                   }}
-                  className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-xs font-semibold text-white hover:bg-white/10 flex items-center gap-1 self-start transition-all duration-300 hover:scale-105 button-press"
+                  className="px-3 py-2 rounded bg-zinc-800 border border-zinc-700 text-white text-xs font-medium hover:bg-zinc-700 h-fit transition-all duration-300 flex items-center gap-1"
                 >
-                  <Copy size={14} className="transition-transform duration-300" />
-                  {copiedField === "embed" ? "Copied ✓" : "Copy"}
+                  <Copy size={12} />
+                  {copiedField === "embed" ? "Copied" : "Copy"}
                 </button>
               </div>
             </div>
 
             {/* QR code */}
-            <div className="space-y-2">
-              <label className="text-xs font-medium text-slate-300">QR code</label>
+            <div className="space-y-2 pt-2 border-t border-zinc-800">
+              <label className="text-xs font-mono uppercase tracking-wider text-zinc-500">QR CODE</label>
               <div className="flex items-center gap-4">
-                <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(
-                    publicLink
-                  )}`}
-                  alt="Form QR code"
-                  className="w-32 h-32 rounded-md border border-white/10 bg-white"
-                />
-                <p className="text-xs text-slate-400">
-                  Scan this code to open the public form on mobile, or download the image for your docs and slides.
+                <div className="p-2 bg-white rounded">
+                  <img
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(
+                      publicLink
+                    )}`}
+                    alt="Form QR code"
+                    className="w-24 h-24"
+                  />
+                </div>
+                <p className="text-xs text-zinc-500 max-w-[200px]">
+                  Scan for mobile access.
                 </p>
               </div>
             </div>
