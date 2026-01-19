@@ -35,3 +35,44 @@ export interface Form {
   thankYouTitle?: string;
   thankYouDescription?: string;
 }
+
+export interface InvoiceLineItem {
+  id: string;
+  description: string;
+  quantity: number;
+  rate: number;
+  amount: number;
+}
+
+export interface InvoiceTheme {
+  primaryColor: string;
+  logoUrl?: string;
+  note?: string;
+}
+
+export type InvoiceStatus = 'draft' | 'paid' | 'overdue';
+
+export interface Invoice {
+  _id?: string;
+  userId: string;
+  invoiceNumber: string;
+  date: Date | string;
+  dueDate?: Date | string;
+  fromDetails: {
+    name: string;
+    email: string;
+    address: string;
+  };
+  toDetails: {
+    name: string;
+    email: string;
+    address: string;
+  };
+  lineItems: InvoiceLineItem[];
+  currency: string;
+  taxRate: number;
+  theme: InvoiceTheme;
+  status: InvoiceStatus;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
+}

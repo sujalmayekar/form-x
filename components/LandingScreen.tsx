@@ -6,7 +6,7 @@ import { ArrowRight, BarChart2, Plus, Users, Zap } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface LandingScreenProps {
-  onCreate: (type: "quiz" | "survey") => void;
+  onCreate: (type: "quiz" | "survey" | "invoice") => void;
 }
 
 const LandingScreen: React.FC<LandingScreenProps> = ({ onCreate }) => {
@@ -56,6 +56,13 @@ const LandingScreen: React.FC<LandingScreenProps> = ({ onCreate }) => {
                 className="px-6 py-3 border border-zinc-800 text-zinc-300 text-sm font-medium rounded-md hover:border-zinc-700 hover:text-white transition-all duration-300 bg-black/20 hover:scale-105 hover:bg-white/5 hover:shadow-lg button-press ripple"
               >
                 Start Survey
+              </button>
+              <button
+                onClick={() => onCreate("invoice")}
+                className="px-6 py-3 border border-zinc-800 text-zinc-300 text-sm font-medium rounded-md hover:border-zinc-700 hover:text-white transition-all duration-300 bg-black/20 hover:scale-105 hover:bg-white/5 hover:shadow-lg button-press ripple flex items-center gap-2"
+              >
+                <span className="text-emerald-500 font-mono text-xs">NEW</span>
+                Create Invoice
               </button>
             </div>
           </div>

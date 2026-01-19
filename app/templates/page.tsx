@@ -3,53 +3,9 @@
 import React, { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import { useRouter } from 'next/navigation';
-import { Layout, ArrowRight, BookOpen, Calendar, MessageSquare, Loader2 } from 'lucide-react';
+import { ArrowRight, Loader2 } from 'lucide-react';
 import { useUser } from '@clerk/nextjs';
-
-const templates = [
-    {
-        id: 'exam',
-        title: 'Semester End Examination',
-        description: 'Standard academic assessment template with student details and batch selection.',
-        type: 'quiz',
-        icon: <BookOpen className="w-6 h-6 text-emerald-400" />,
-        gradient: 'from-emerald-900/20 to-zinc-900',
-        questions: [
-            { text: "Full Name", type: "text", required: true },
-            { text: "Roll Number", type: "text", required: true },
-            { text: "Batch Code", type: "multiple_choice", options: ["Batch A", "Batch B", "Batch C"], required: true },
-            { text: "Student Email", type: "text", required: true }
-        ]
-    },
-    {
-        id: 'event',
-        title: 'Tech Summit 2026 Registration',
-        description: 'Professional event RSVP form with attendance options and dietary preferences.',
-        type: 'survey',
-        icon: <Calendar className="w-6 h-6 text-amber-400" />,
-        gradient: 'from-amber-900/20 to-zinc-900',
-        questions: [
-            { text: "Full Name", type: "text", required: true },
-            { text: "Work Email", type: "text", required: true },
-            { text: "Will you be attending?", type: "multiple_choice", options: ["Yes, in-person", "Yes, virtually", "No"], required: true },
-            { text: "Dietary Restrictions", type: "long_text", required: false }
-        ]
-    },
-    {
-        id: 'feedback',
-        title: 'User Experience Survey',
-        description: 'Collect detailed product feedback and user satisfaction ratings.',
-        type: 'survey',
-        icon: <MessageSquare className="w-6 h-6 text-blue-400" />,
-        gradient: 'from-blue-900/20 to-zinc-900',
-        questions: [
-            { text: "How would you rate your experience?", type: "rating", maxRating: 5, required: true },
-            { text: "What feature do you use the most?", type: "text", required: true },
-            { text: "How can we improve?", type: "long_text", required: true },
-            { text: "Can we contact you for follow-up?", type: "multiple_choice", options: ["Yes", "No"], required: true }
-        ]
-    }
-];
+import { templates } from '@/lib/templates';
 
 export default function TemplatesPage() {
     const router = useRouter();
@@ -57,54 +13,19 @@ export default function TemplatesPage() {
     const [creatingId, setCreatingId] = useState<string | null>(null);
 
     const handleCreateTemplate = async (template: typeof templates[0]) => {
-
-
         setCreatingId(template.id);
 
-        try {
-            // Process questions to match expected format with unique IDs
-            const processedQuestions = template.questions.map((q, index) => ({
-                id: Date.now() + index,
-                ...q
-            }));
-
-            const res = await fetch('/api/forms', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    title: template.title,
-                    description: template.description,
-                    type: template.type,
-                    questions: processedQuestions,
-                    theme: {
-                        primaryColor: "#fafafa",
-                        backgroundColor: "#09090b",
-                        cardBackground: "#18181b",
-                        textColor: "#f4f4f5",
-                        borderColor: "#27272a",
-                        borderRadius: "lg",
-                        headerStyle: "default"
-                    }
-                }),
-            });
-
-            const data = await res.json();
-            if (data.success) {
-                // Add artificial delay for smoother UX
-                setTimeout(() => {
-                    router.push(`/dashboard/forms/${data.id}?edit=true`);
-                }, 500);
-            } else {
-                alert('Failed to create template');
-                setCreatingId(null);
-            }
-        } catch (error) {
-            console.error(error);
-            alert('Error creating form');
-            setCreatingId(null);
+        if (template.type === 'invoice') {
+            setTimeout(() => {
+                router.push(`/?view=invoice-builder&template=${template.id}`);
+            }, 500);
+            return;
         }
+
+        // For forms, redirect to builder with template ID to populate state without saving yet
+        setTimeout(() => {
+            router.push(`/?view=builder&templateId=${template.id}`);
+        }, 500);
     };
 
     return (
@@ -153,7 +74,7 @@ export default function TemplatesPage() {
                                     {creatingId === template.id ? (
                                         <>
                                             <Loader2 className="w-4 h-4 animate-spin" />
-                                            <span>Creating...</span>
+                                            <span>Loading...</span>
                                         </>
                                     ) : (
                                         <>
