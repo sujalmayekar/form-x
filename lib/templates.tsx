@@ -1,7 +1,36 @@
 import React from 'react';
-import { Layout, BookOpen, Calendar, MessageSquare } from 'lucide-react';
+import { Layout, BookOpen, Calendar, MessageSquare, Briefcase, BrainCircuit } from 'lucide-react';
 
 export const templates = [
+    {
+        id: 'job-application',
+        title: 'Frontend Developer Application',
+        description: 'Recruitment form for screening frontend developer candidates.',
+        type: 'survey',
+        icon: <Briefcase className="w-6 h-6 text-blue-500" />,
+        gradient: 'from-blue-900/20 to-zinc-900',
+        questions: [
+            { text: "Full Name", type: "text", required: true },
+            { text: "Portfolio / GitHub URL", type: "text", required: true },
+            { text: "Years of experience with React?", type: "multiple_choice", options: ["Less than 1 year", "1-3 years", "3-5 years", "5+ years"], required: true },
+            { text: "What is your expected salary range?", type: "text", required: true },
+            { text: "Why do you want to join our team?", type: "long_text", required: true }
+        ]
+    },
+    {
+        id: 'trivia',
+        title: 'Weekly Team Trivia',
+        description: 'Fun weekly quiz to engage the team and test general knowledge.',
+        type: 'quiz',
+        icon: <BrainCircuit className="w-6 h-6 text-purple-500" />,
+        gradient: 'from-purple-900/20 to-zinc-900',
+        questions: [
+            { text: "Which planet is known as the Red Planet?", type: "multiple_choice", options: ["Venus", "Mars", "Jupiter"], correctAnswer: 1, required: true },
+            { text: "What is the powerhouse of the cell?", type: "multiple_choice", options: ["Nucleus", "Mitochondria", "Ribosome"], correctAnswer: 1, required: true },
+            { text: "Which language is primarily used for Android development?", type: "multiple_choice", options: ["Swift", "Kotlin", "Ruby"], correctAnswer: 1, required: true },
+            { text: "Rate your confidence in these answers!", type: "rating", maxRating: 5, required: false }
+        ]
+    },
     {
         id: 'exam',
         title: 'Semester End Examination',
