@@ -14,7 +14,20 @@ import {
   Star,
   Share2,
   Copy,
+  PieChart as PieChartIcon,
 } from "lucide-react";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
 
 interface ApiForm extends Form {
   _id: string;
@@ -26,6 +39,8 @@ interface Response {
   score?: number;
   submittedAt: string;
 }
+
+const COLORS = ["#10b981", "#06b6d4", "#f59e0b", "#f43f5e", "#6366f1", "#8b5cf6", "#ec4899"];
 
 export default function FormAnalyticsPage() {
   const params = useParams();
@@ -85,7 +100,23 @@ export default function FormAnalyticsPage() {
 
       responses.forEach((response) => {
         const answer = response.answers[questionId];
-        if (typeof answer === "number" && stats[answer] !== undefined) {
+
+        // Handle array of strings (multi-select)
+        if (Array.isArray(answer)) {
+          answer.forEach((ans) => {
+            if (typeof ans === 'string') {
+              const idx = question.options!.indexOf(ans);
+              if (idx !== -1) stats[idx]++;
+            }
+          });
+        }
+        // Handle single string answer
+        else if (typeof answer === 'string') {
+          const idx = question.options!.indexOf(answer);
+          if (idx !== -1) stats[idx]++;
+        }
+        // Handle legacy number index
+        else if (typeof answer === "number" && stats[answer] !== undefined) {
           stats[answer]++;
         }
       });
@@ -105,7 +136,14 @@ export default function FormAnalyticsPage() {
         ratings.length > 0
           ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(2)
           : "0.00";
-      return { average: parseFloat(avg), total: ratings.length };
+
+      // Count frequency for bar chart
+      const distribution = [0, 0, 0, 0, 0]; // 1 to 5
+      ratings.forEach(r => {
+        if (r >= 1 && r <= 5) distribution[r - 1]++;
+      });
+
+      return { average: parseFloat(avg), total: ratings.length, distribution };
     }
 
     return null;
@@ -143,6 +181,9 @@ export default function FormAnalyticsPage() {
           }
           if (q.type === "rating" || q.type === "date") {
             return answer !== undefined && answer !== null ? String(answer) : "";
+          }
+          if (Array.isArray(answer)) {
+            return answer.join(", ");
           }
           // text / long_text / other strings
           return typeof answer === "string" ? answer : "";
@@ -334,76 +375,128 @@ export default function FormAnalyticsPage() {
                   {question.type === "multiple_choice" &&
                     question.options &&
                     stats && (
-                      <div className="space-y-3">
-                        {question.options.map((option, optIdx) => {
-                          const count =
-                            (stats as Record<number, number>)[optIdx] || 0;
-                          const percentage =
-                            responses.length > 0
-                              ? ((count / responses.length) * 100).toFixed(1)
-                              : 0;
-                          const isCorrect = question.correctAnswer === optIdx;
+                      <div className="flex flex-col md:flex-row gap-8">
+                        <div className="space-y-3 flex-1">
+                          {question.options.map((option, optIdx) => {
+                            const count =
+                              (stats as Record<number, number>)[optIdx] || 0;
+                            const percentage =
+                              responses.length > 0
+                                ? ((count / responses.length) * 100).toFixed(1)
+                                : 0;
+                            const isCorrect = question.correctAnswer === optIdx;
 
-                          return (
-                            <div key={optIdx} className="group space-y-2">
-                              <div className="flex items-center justify-between text-sm">
-                                <div className="flex items-center gap-2 text-zinc-300">
-                                  <span>{option}</span>
-                                  {form.type === "quiz" && isCorrect && (
-                                    <CheckCircle2
-                                      size={14}
-                                      className="text-emerald-500"
-                                    />
-                                  )}
+                            return (
+                              <div key={optIdx} className="group space-y-2">
+                                <div className="flex items-center justify-between text-sm">
+                                  <div className="flex items-center gap-2 text-zinc-300">
+                                    <span>{option}</span>
+                                    {form.type === "quiz" && isCorrect && (
+                                      <CheckCircle2
+                                        size={14}
+                                        className="text-emerald-500"
+                                      />
+                                    )}
+                                  </div>
+                                  <span className="text-zinc-500 font-mono text-xs">
+                                    {count} ({percentage}%)
+                                  </span>
                                 </div>
-                                <span className="text-zinc-500 font-mono text-xs">
-                                  {count} ({percentage}%)
-                                </span>
+                                <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                                  <div
+                                    className={`h-full rounded-full transition-all duration-500 ${isCorrect && form.type === "quiz"
+                                      ? "bg-emerald-500/50"
+                                      : "bg-zinc-200/50 group-hover:bg-zinc-200"
+                                      }`}
+                                    style={{
+                                      width: `${percentage}%`,
+                                      transition: 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
+                                      backgroundColor: COLORS[optIdx % COLORS.length]
+                                    }}
+                                  />
+                                </div>
                               </div>
-                              <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-                                <div
-                                  className={`h-full rounded-full transition-all duration-500 ${isCorrect && form.type === "quiz"
-                                    ? "bg-emerald-500/50"
-                                    : "bg-zinc-200/50 group-hover:bg-zinc-200"
-                                    }`}
-                                  style={{
-                                    width: `${percentage}%`,
-                                    transition: 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)'
-                                  }}
-                                />
-                              </div>
-                            </div>
-                          );
-                        })}
+                            );
+                          })}
+                        </div>
+                        {/* Pie Chart for Multiple Choice */}
+                        <div className="h-48 w-full md:w-64 flex-shrink-0">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                              <Pie
+                                data={question.options.map((opt, i) => ({
+                                  name: opt,
+                                  value: (stats as Record<number, number>)[i] || 0
+                                })).filter(d => d.value > 0)}
+                                cx="50%"
+                                cy="50%"
+                                innerRadius={40}
+                                outerRadius={80}
+                                paddingAngle={5}
+                                dataKey="value"
+                              >
+                                {question.options.map((_, index) => (
+                                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="rgba(0,0,0,0.2)" />
+                                ))}
+                              </Pie>
+                              <Tooltip
+                                contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', color: '#e4e4e7', fontSize: '12px' }}
+                                itemStyle={{ color: '#e4e4e7' }}
+                              />
+                            </PieChart>
+                          </ResponsiveContainer>
+                        </div>
                       </div>
                     )}
 
                   {question.type === "rating" &&
                     stats &&
                     "average" in stats && (
-                      <div className="mt-4">
-                        <div className="flex items-center gap-4">
-                          <div>
-                            <p className="text-2xl font-serif text-white">
-                              {stats.average}
-                            </p>
-                            <p className="text-xs text-zinc-500 uppercase tracking-wider">
-                              Average
-                            </p>
+                      <div className="mt-4 flex flex-col md:flex-row gap-8 items-center">
+                        <div className="flex-shrink-0">
+                          <div className="flex items-center gap-4">
+                            <div>
+                              <p className="text-4xl font-serif text-white">
+                                {stats.average}
+                              </p>
+                              <p className="text-xs text-zinc-500 uppercase tracking-wider mt-1">
+                                Average Rating
+                              </p>
+                            </div>
+                            <div className="flex gap-1">
+                              {[1, 2, 3, 4, 5].map((rating) => (
+                                <Star
+                                  key={rating}
+                                  size={24}
+                                  className={
+                                    rating <= Math.round(Number(stats.average))
+                                      ? "text-yellow-500/80 fill-yellow-500/80"
+                                      : "text-zinc-800"
+                                  }
+                                />
+                              ))}
+                            </div>
                           </div>
-                          <div className="flex gap-1">
-                            {[1, 2, 3, 4, 5].map((rating) => (
-                              <Star
-                                key={rating}
-                                size={20}
-                                className={
-                                  rating <= Math.round(stats.average)
-                                    ? "text-yellow-500/80 fill-yellow-500/80"
-                                    : "text-zinc-800"
-                                }
+                          <p className="text-xs text-zinc-500 font-mono mt-4">
+                            Based on {stats.total} responses
+                          </p>
+                        </div>
+
+                        {/* Bar Chart for Ratings */}
+                        <div className="h-40 w-full flex-1">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={[1, 2, 3, 4, 5].map(r => ({
+                              name: `${r} Stars`,
+                              count: (stats as any).distribution[r - 1] || 0
+                            }))}>
+                              <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#71717a' }} axisLine={false} tickLine={false} />
+                              <Tooltip
+                                cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                                contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', color: '#e4e4e7', fontSize: '12px' }}
                               />
-                            ))}
-                          </div>
+                              <Bar dataKey="count" fill="#fbbf24" radius={[4, 4, 0, 0]} />
+                            </BarChart>
+                          </ResponsiveContainer>
                         </div>
                       </div>
                     )}
@@ -464,22 +557,45 @@ export default function FormAnalyticsPage() {
                           <div className="text-zinc-200">
                             {question.type === "multiple_choice" &&
                               question.options &&
-                              typeof answer === "number" && (
-                                <div className="flex items-center gap-2">
-                                  <span className="bg-zinc-800 px-2 py-1 rounded text-sm">{question.options[answer]}</span>
-                                  {form.type === "quiz" &&
-                                    question.correctAnswer !== undefined &&
-                                    (question.correctAnswer === answer ? (
-                                      <CheckCircle2
-                                        size={14}
-                                        className="text-emerald-500"
-                                      />
-                                    ) : (
-                                      <XCircle
-                                        size={14}
-                                        className="text-red-500"
-                                      />
-                                    ))}
+                              (
+                                <div className="flex flex-wrap gap-2">
+                                  {/* Handle Array (Multi-select) */}
+                                  {Array.isArray(answer) ? (
+                                    answer.map((ans: string, i: number) => (
+                                      <span key={i} className="bg-zinc-800 px-2 py-1 rounded text-sm text-zinc-300 border border-zinc-700">
+                                        {ans}
+                                      </span>
+                                    ))
+                                  ) : typeof answer === 'string' ? (
+                                    // Handle String (Single select)
+                                    <div className="flex items-center gap-2">
+                                      <span className="bg-zinc-800 px-2 py-1 rounded text-sm text-zinc-300 border border-zinc-700">
+                                        {answer}
+                                      </span>
+                                      {form.type === "quiz" &&
+                                        question.correctAnswer != null &&
+                                        (question.options[question.correctAnswer] === answer ? (
+                                          <CheckCircle2
+                                            size={14}
+                                            className="text-emerald-500"
+                                          />
+                                        ) : (
+                                          <XCircle
+                                            size={14}
+                                            className="text-red-500"
+                                          />
+                                        ))}
+                                    </div>
+                                  ) : typeof answer === 'number' ? (
+                                    // Handle Legacy Number
+                                    <div className="flex items-center gap-2">
+                                      <span className="bg-zinc-800 px-2 py-1 rounded text-sm text-zinc-300 border border-zinc-700">
+                                        {question.options[answer]}
+                                      </span>
+                                    </div>
+                                  ) : (
+                                    <span className="text-zinc-500 italic text-sm">No valid answer</span>
+                                  )}
                                 </div>
                               )}
                             {question.type === "text" && (
