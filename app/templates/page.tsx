@@ -12,7 +12,7 @@ export default function TemplatesPage() {
     const { user } = useUser();
     const [creatingId, setCreatingId] = useState<string | null>(null);
 
-    const handleCreateTemplate = async (template: typeof templates[0]) => {
+    const handleCreateTemplate = async (template: typeof templates[number]) => {
         setCreatingId(template.id);
 
         if (template.type === 'invoice') {

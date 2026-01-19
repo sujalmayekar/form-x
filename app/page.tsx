@@ -25,7 +25,7 @@ function HomeContent() {
       if (template && template.type !== 'invoice') {
         const processedQuestions: Question[] = template.questions.map((q, index) => ({
           id: Date.now() + index, // Assign valid unique ID
-          required: false, // default fallbacks if needed
+
           ...q
         })) as Question[]; // Type cast to ensure compatibility
 
