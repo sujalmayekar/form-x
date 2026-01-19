@@ -335,7 +335,21 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
                           <Trash2 size={14} />
                         </button>
                         <div className="h-3 w-[1px] bg-zinc-800" />
-                        <label className="flex items-center gap-2 text-xs text-zinc-400 cursor-pointer hover:text-white">
+                        {q.type === 'multiple_choice' && (
+                          <>
+                            <label className="flex items-center gap-2 text-xs text-zinc-400 cursor-pointer hover:text-white transition-colors duration-200">
+                              <input
+                                type="checkbox"
+                                checked={q.allowMultiple || false}
+                                onChange={(e) => updateQuestion(q.id, 'allowMultiple', e.target.checked)}
+                                className="rounded border-zinc-700 bg-zinc-900 focus:ring-0 text-emerald-500"
+                              />
+                              Allow Multiple Answers
+                            </label>
+                            <div className="h-3 w-[1px] bg-zinc-800" />
+                          </>
+                        )}
+                        <label className="flex items-center gap-2 text-xs text-zinc-400 cursor-pointer hover:text-white transition-colors duration-200">
                           <input type="checkbox" checked={q.required} onChange={(e) => updateQuestion(q.id, 'required', e.target.checked)} className="rounded border-zinc-700 bg-zinc-900 focus:ring-0 text-white" />
                           Required
                         </label>

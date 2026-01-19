@@ -190,7 +190,7 @@ const FormPreview: React.FC<FormPreviewProps> = ({ form, onBack }) => {
                           style={{ borderRadius: theme.radius }}
                         >
                           <div
-                            className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-white/20"
+                            className={`flex h-5 w-5 items-center justify-center ${q.allowMultiple ? 'rounded-md' : 'rounded-full'} border-2 border-white/20`}
                           />
                           <span className="text-base" style={{ color: theme.text }}>{opt}</span>
                         </label>

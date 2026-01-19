@@ -5,6 +5,7 @@ export interface Question {
   type: QuestionType;
   text: string;
   required: boolean;
+  allowMultiple?: boolean;
   options?: string[];
   correctAnswer?: number | null;
   maxRating?: number;

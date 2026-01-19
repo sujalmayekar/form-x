@@ -34,11 +34,30 @@ export default function TakeQuizPage() {
   }, [id]);
 
   const handleAnswerChange = (qId: number, value: any) => {
-    setAnswers({ ...answers, [qId]: value });
+    const question = form.questions.find((q: any) => q.id === qId);
+
+    if (question?.type === 'multiple_choice' && question.allowMultiple) {
+      const currentAnswers = Array.isArray(answers[qId]) ? answers[qId] : [];
+      const newAnswers = currentAnswers.includes(value)
+        ? currentAnswers.filter((v: any) => v !== value)
+        : [...currentAnswers, value];
+      setAnswers({ ...answers, [qId]: newAnswers });
+    } else {
+      setAnswers({ ...answers, [qId]: value });
+    }
   };
 
   const handleSubmit = async () => {
-    if (form?.questions.some((q: any) => q.required && !answers[q.id] && answers[q.id] !== 0)) {
+    const hasUnansweredRequired = form?.questions.some((q: any) => {
+      if (!q.required) return false;
+      const ans = answers[q.id];
+      if (q.type === 'multiple_choice' && q.allowMultiple) {
+        return !Array.isArray(ans) || ans.length === 0;
+      }
+      return !ans && ans !== 0;
+    });
+
+    if (hasUnansweredRequired) {
       alert("Please answer all required questions.");
       return;
     }
@@ -179,7 +198,7 @@ export default function TakeQuizPage() {
             <div
               key={q.id}
               className={`${borderRadiusClass} p-8 md:p-10 shadow-sm border border-black/5 hover:shadow-md transition-all duration-300 hover:scale-[1.01] animate-fade-in`}
-              style={{ 
+              style={{
                 backgroundColor: cardBackground,
                 animationDelay: `${index * 100}ms`
               }}
@@ -194,33 +213,39 @@ export default function TakeQuizPage() {
                 <div className="">
                   {q.type === 'multiple_choice' && (
                     <div className="space-y-3">
-                      {q.options.map((option: string, i: number) => (
-                        <label
-                          key={i}
-                          className={`flex items-center p-4 rounded-lg border-2 cursor-pointer transition-all duration-300 group hover:scale-[1.02] hover:shadow-md button-press ${answers[q.id] === option
-                            ? 'border-opacity-100 bg-opacity-5 scale-[1.02]'
-                            : 'border-transparent bg-black/5 hover:bg-black/10'
-                            }`}
-                          style={{
-                            borderColor: answers[q.id] === option ? primaryColor : 'transparent',
-                            backgroundColor: answers[q.id] === option ? `${primaryColor}10` : undefined
-                          }}
-                        >
-                          <input
-                            type="radio"
-                            name={q.id}
-                            value={option}
-                            checked={answers[q.id] === option}
-                            onChange={(e) => handleAnswerChange(q.id, e.target.value)}
-                            className="w-5 h-5 border-2 mr-4 transition-all"
+                      {q.options.map((option: string, i: number) => {
+                        const isSelected = q.allowMultiple
+                          ? Array.isArray(answers[q.id]) && answers[q.id].includes(option)
+                          : answers[q.id] === option;
+
+                        return (
+                          <label
+                            key={i}
+                            className={`flex items-center p-4 rounded-lg border-2 cursor-pointer transition-all duration-300 group hover:scale-[1.02] hover:shadow-md button-press ${isSelected
+                              ? 'border-opacity-100 bg-opacity-5 scale-[1.02]'
+                              : 'border-transparent bg-black/5 hover:bg-black/10'
+                              }`}
                             style={{
-                              accentColor: primaryColor,
-                              borderColor: 'currentColor'
+                              borderColor: isSelected ? primaryColor : 'transparent',
+                              backgroundColor: isSelected ? `${primaryColor}10` : undefined
                             }}
-                          />
-                          <span className="text-lg" style={{ color: textColor }}>{option}</span>
-                        </label>
-                      ))}
+                          >
+                            <input
+                              type={q.allowMultiple ? "checkbox" : "radio"}
+                              name={q.id}
+                              value={option}
+                              checked={isSelected}
+                              onChange={() => handleAnswerChange(q.id, option)}
+                              className={`w-5 h-5 border-2 mr-4 transition-all ${q.allowMultiple ? 'rounded-md' : 'rounded-full'}`}
+                              style={{
+                                accentColor: primaryColor,
+                                borderColor: 'currentColor'
+                              }}
+                            />
+                            <span className="text-lg" style={{ color: textColor }}>{option}</span>
+                          </label>
+                        );
+                      })}
                     </div>
                   )}
 
