@@ -23,13 +23,7 @@ const LandingScreen: React.FC<LandingScreenProps> = ({ onCreate }) => {
         <main className="pt-32 pb-20 px-6 sm:px-8 lg:px-12 max-w-[1400px] mx-auto">
           {/* Hero Section */}
           <div className="max-w-4xl mx-auto text-center mb-24 space-y-8 animate-fade-in">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-zinc-800 bg-zinc-900/50 backdrop-blur-sm hover:border-zinc-700 hover:bg-zinc-900/70 transition-all duration-300 hover:scale-105 cursor-default">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-              <span className="text-xs font-mono text-zinc-400 tracking-tight transition-colors duration-300 hover:text-zinc-300">V2.0 NOW LIVE</span>
-            </div>
+
 
             <h1 className="text-5xl md:text-7xl font-serif tracking-tight text-white leading-[1.1] animate-slide-up" style={{ animationDelay: '0.1s' }}>
               The new standard for <br />
@@ -61,7 +55,7 @@ const LandingScreen: React.FC<LandingScreenProps> = ({ onCreate }) => {
                 onClick={() => onCreate("invoice")}
                 className="px-6 py-3 border border-zinc-800 text-zinc-300 text-sm font-medium rounded-md hover:border-zinc-700 hover:text-white transition-all duration-300 bg-black/20 hover:scale-105 hover:bg-white/5 hover:shadow-lg button-press ripple flex items-center gap-2"
               >
-                <span className="text-emerald-500 font-mono text-xs">NEW</span>
+
                 Create Invoice
               </button>
             </div>

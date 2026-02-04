@@ -224,7 +224,7 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
 
           <div className="p-4 border-t border-border mt-auto">
             <div className="text-[10px] text-zinc-600 font-mono text-center">
-              v2.0 • MONOCHROME
+              MONOCHROME
             </div>
           </div>
         </aside>
