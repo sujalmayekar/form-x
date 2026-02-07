@@ -129,7 +129,7 @@ export const DarkTemplate: React.FC<InvoiceTemplateProps> = ({ invoice, subtotal
                 <div className="w-24 h-1 bg-white mb-8" style={{ backgroundColor: invoice.theme?.primaryColor }}></div>
 
                 {invoice.theme?.logoUrl && (
-                    <img src={invoice.theme.logoUrl} alt="Logo" className="h-16 w-auto object-contain mb-6 grayscale invert" />
+                    <img src={invoice.theme.logoUrl} alt="Logo" className="h-16 w-auto object-contain mb-6" />
                 )}
             </div>
 
