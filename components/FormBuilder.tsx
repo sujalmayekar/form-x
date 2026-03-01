@@ -32,24 +32,43 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
   const [activeQuestionId, setActiveQuestionId] = useState<number | null>(null);
   const [shareLink, setShareLink] = useState<string | null>(null);
   const [shareCopied, setShareCopied] = useState(false);
+  const [showDraftToast, setShowDraftToast] = useState(false);
 
-  const saveForm = async () => {
+  const saveForm = async (published: boolean = false) => {
     setIsSaving(true);
     try {
-      const response = await fetch('/api/forms', {
-        method: 'POST',
+      const url = form.id ? `/api/forms/${form.id}` : '/api/forms';
+      const method = form.id ? 'PUT' : 'POST';
+
+      const titleToSave = !form.title || form.title.trim() === '' ? 'Untitled Form' : form.title;
+      const payload = { ...form, title: titleToSave, published };
+
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
 
       if (data.success) {
-        const link = `${window.location.origin}/take/${data.id}`;
-        setShareLink(link);
-        setShareCopied(false);
+        if (!form.id && data.id) {
+          // If it was a new form, update the local state with the new ID
+          setForm({ ...form, id: data.id, title: titleToSave });
+        } else if (form.title !== titleToSave) {
+          setForm({ ...form, title: titleToSave });
+        }
+
+        if (published) {
+          const link = `${window.location.origin}/take/${data.id || form.id}`;
+          setShareLink(link);
+          setShareCopied(false);
+        } else {
+          setShowDraftToast(true);
+          setTimeout(() => setShowDraftToast(false), 3000);
+        }
       } else {
         alert('Error saving form: ' + data.error);
       }
@@ -145,7 +164,7 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
             />
           </div>
           <div className={`px-2 py-0.5 rounded-full bg-zinc-900 border border-zinc-800 text-[10px] uppercase font-mono text-zinc-500 transition-all duration-300 ${isSaving ? 'animate-pulse-subtle' : 'hover:border-emerald-500/50'}`}>
-            {isSaving ? "Saving..." : "Saved"}
+            {isSaving ? "Saving..." : form.published ? "Published" : "Draft"}
           </div>
         </div>
 
@@ -171,20 +190,29 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
           >
             Preview
           </button>
-          <button
-            onClick={saveForm}
-            disabled={isSaving}
-            className="px-4 py-1.5 bg-white text-black text-xs font-semibold rounded-md hover:bg-zinc-200 transition-all duration-300 hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed button-press ripple"
-          >
-            {isSaving ? (
-              <span className="flex items-center gap-2">
-                <span className="w-3 h-3 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                Publishing...
-              </span>
-            ) : (
-              "Publish Changes"
-            )}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => saveForm(false)}
+              disabled={isSaving}
+              className="px-3 py-1.5 text-xs font-medium rounded-md border border-zinc-700 text-zinc-300 hover:text-white hover:bg-zinc-800 transition-all duration-300 hover:scale-105 button-press"
+            >
+              Save Draft
+            </button>
+            <button
+              onClick={() => saveForm(true)}
+              disabled={isSaving}
+              className="px-4 py-1.5 bg-white text-black text-xs font-semibold rounded-md hover:bg-zinc-200 transition-all duration-300 hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed button-press ripple"
+            >
+              {isSaving ? (
+                <span className="flex items-center gap-2">
+                  <span className="w-3 h-3 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                  Publishing...
+                </span>
+              ) : (
+                "Publish"
+              )}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -414,6 +442,23 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
               <button onClick={() => setShareLink(null)} className="ml-2 text-zinc-600 hover:text-white transition-all duration-300 hover:scale-110 hover:rotate-12 button-press">
                 <Trash2 size={12} />
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Draft Saved Toast */}
+      {showDraftToast && (
+        <div className="fixed bottom-6 right-6 z-50 animate-scale-in pointer-events-none">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 shadow-2xl flex items-center gap-4 hover-lift transition-all duration-300 hover:border-zinc-500/50">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-zinc-800 rounded-full flex items-center justify-center text-zinc-300">
+                <CheckSquare size={14} />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-white">Draft Saved</p>
+                <p className="text-xs text-zinc-500">Your progress has been saved</p>
+              </div>
             </div>
           </div>
         </div>

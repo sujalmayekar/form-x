@@ -57,7 +57,8 @@ const FormSchema = new mongoose.Schema({
   thankYouDescription: { type: String, default: 'Thank you for completing this form.' },
   isOpen: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now }
+  updatedAt: { type: Date, default: Date.now },
+  published: { type: Boolean, default: false }
 });
 
 // 3. Export the model so other files can use it

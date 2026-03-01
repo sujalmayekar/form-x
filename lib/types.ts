@@ -35,6 +35,7 @@ export interface Form {
   endDate?: string | Date;
   thankYouTitle?: string;
   thankYouDescription?: string;
+  published?: boolean;
 }
 
 export interface InvoiceLineItem {

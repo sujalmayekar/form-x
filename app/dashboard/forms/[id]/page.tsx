@@ -11,6 +11,7 @@ import {
   Copy,
   XCircle,
   BarChart3, // Used in icon
+  Edit,
 } from "lucide-react";
 import AnalyticsView from "@/components/AnalyticsView";
 
@@ -181,6 +182,13 @@ export default function FormAnalyticsPage() {
             )}
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={() => router.push(`/dashboard/forms/edit/${formId}`)}
+              className="px-4 py-2 rounded-md border border-zinc-700 hover:border-zinc-500 text-sm font-medium hover:bg-zinc-800 transition-all duration-300 flex items-center gap-2 bg-zinc-900 text-zinc-200 button-press ripple"
+            >
+              <Edit size={14} />
+              Edit Form
+            </button>
             <button
               type="button"
               onClick={() => setIsShareOpen(true)}

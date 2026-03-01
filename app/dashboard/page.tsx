@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { BarChart3, FileText, Calendar, Eye, Trash2 } from 'lucide-react';
+import { BarChart3, FileText, Calendar, Eye, Trash2, Edit } from 'lucide-react';
 
 interface Form {
   _id: string;
@@ -13,6 +13,7 @@ interface Form {
   type: 'quiz' | 'survey';
   createdAt: string;
   updatedAt?: string;
+  published: boolean;
 }
 
 export default function DashboardPage() {
@@ -148,7 +149,12 @@ export default function DashboardPage() {
                 <div className="flex items-start justify-between mb-8">
                   <div className="space-y-1">
                     <h3 className="font-medium text-white group-hover:text-white transition-colors">{form.title}</h3>
-                    <p className="text-xs font-mono text-zinc-500 uppercase tracking-wider">{form.type}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs font-mono text-zinc-500 uppercase tracking-wider">{form.type}</p>
+                      {!form.published && (
+                        <span className="px-1.5 py-0.5 rounded bg-zinc-800 text-[10px] font-mono text-zinc-400 border border-zinc-700">DRAFT</span>
+                      )}
+                    </div>
                   </div>
                   <div className={`w-2 h-2 rounded-full transition-all duration-300 ${responseCounts[form._id] ? 'bg-emerald-500 animate-pulse-subtle' : 'bg-zinc-700'} group-hover:scale-150`} />
                   <button
@@ -157,6 +163,16 @@ export default function DashboardPage() {
                     title="Delete form"
                   >
                     <Trash2 size={16} />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      router.push(`/dashboard/forms/edit/${form._id}`);
+                    }}
+                    className="absolute top-6 right-16 p-2 rounded-md hover:bg-zinc-800 text-zinc-500 hover:text-zinc-300 opacity-0 group-hover:opacity-100 transition-all duration-300"
+                    title="Edit form"
+                  >
+                    <Edit size={16} />
                   </button>
                 </div>
 
