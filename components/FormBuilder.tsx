@@ -599,6 +599,7 @@ const ThemeSettingsPanel = ({ form, setForm }: { form: Form; setForm: (form: For
               type="date"
               className="bg-zinc-900 border border-zinc-800 rounded px-2 py-1 text-xs text-zinc-300 focus:border-zinc-700 outline-none"
               value={form.endDate ? new Date(form.endDate).toISOString().split('T')[0] : ''}
+              min={form.startDate ? new Date(form.startDate).toISOString().split('T')[0] : ''}
               onChange={(e) => setForm({ ...form, endDate: e.target.value ? new Date(e.target.value) : undefined })}
             />
           </div>

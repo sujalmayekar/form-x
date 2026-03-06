@@ -195,8 +195,8 @@ export default function InvoiceBuilder({ onBack }: InvoiceBuilderProps) {
                                     key={t}
                                     onClick={() => setSelectedTemplate(t as TemplateType)}
                                     className={`px-3 py-2 rounded text-sm capitalize transition-all border ${selectedTemplate === t
-                                            ? 'bg-zinc-800 border-zinc-600 text-white shadow-lg'
-                                            : 'bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-zinc-300 hover:border-zinc-700'
+                                        ? 'bg-zinc-800 border-zinc-600 text-white shadow-lg'
+                                        : 'bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-zinc-300 hover:border-zinc-700'
                                         }`}
                                 >
                                     {t}
@@ -223,8 +223,8 @@ export default function InvoiceBuilder({ onBack }: InvoiceBuilderProps) {
                                 <input
                                     type="date"
                                     value={String(invoice.date)}
-                                    onChange={e => setInvoice({ ...invoice, date: e.target.value })}
-                                    className="w-full bg-zinc-900 border border-zinc-700 rounded p-2 text-sm focus:border-white outline-none transition-colors invert-calendar"
+                                    disabled
+                                    className="w-full bg-zinc-900 border border-zinc-700 rounded p-2 text-sm text-zinc-500 cursor-not-allowed outline-none transition-colors invert-calendar"
                                 />
                             </div>
                             <div>
@@ -232,6 +232,7 @@ export default function InvoiceBuilder({ onBack }: InvoiceBuilderProps) {
                                 <input
                                     type="date"
                                     value={String(invoice.dueDate)}
+                                    min={String(invoice.date)}
                                     onChange={e => setInvoice({ ...invoice, dueDate: e.target.value })}
                                     className="w-full bg-zinc-900 border border-zinc-700 rounded p-2 text-sm focus:border-white outline-none transition-colors invert-calendar"
                                 />
@@ -334,6 +335,7 @@ export default function InvoiceBuilder({ onBack }: InvoiceBuilderProps) {
                                                 <input
                                                     type="number"
                                                     value={item.quantity}
+                                                    min="0"
                                                     onChange={e => handleLineItemChange(idx, 'quantity', e.target.value)}
                                                     className="w-full bg-transparent outline-none text-zinc-300"
                                                 />
@@ -342,6 +344,7 @@ export default function InvoiceBuilder({ onBack }: InvoiceBuilderProps) {
                                                 <input
                                                     type="number"
                                                     value={item.rate}
+                                                    min="0"
                                                     onChange={e => handleLineItemChange(idx, 'rate', e.target.value)}
                                                     className="w-full bg-transparent outline-none text-zinc-300"
                                                 />
@@ -371,6 +374,7 @@ export default function InvoiceBuilder({ onBack }: InvoiceBuilderProps) {
                                     <input
                                         type="number"
                                         value={invoice.taxRate}
+                                        min="0"
                                         onChange={e => setInvoice({ ...invoice, taxRate: Number(e.target.value) })}
                                         className="w-12 bg-zinc-900 border border-zinc-800 rounded px-1 text-right outline-none focus:border-zinc-600"
                                     />
